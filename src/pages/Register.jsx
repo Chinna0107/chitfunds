@@ -1,0 +1,570 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { 
+  User, 
+  Mail, 
+  Phone, 
+  Lock, 
+  Upload, 
+  CheckCircle, 
+  ShieldAlert, 
+  ArrowRight, 
+  ChevronRight, 
+  ShieldCheck, 
+  LockKeyhole,
+  Check
+} from 'lucide-react';
+
+const RegisterIllustration = () => (
+  <svg viewBox="0 0 500 400" width="100%" height="100%" style={{ maxHeight: '320px' }} fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Financial Growth Illustration */}
+    <rect x="50" y="320" width="400" height="8" rx="4" fill="#1e6b3e" opacity="0.2" />
+    
+    {/* Growth Bar Charts */}
+    <rect x="90" y="240" width="30" height="80" rx="6" fill="#1e6b3e" opacity="0.3" />
+    <rect x="150" y="190" width="30" height="130" rx="6" fill="#1e6b3e" opacity="0.5" />
+    <rect x="210" y="140" width="30" height="180" rx="6" fill="#1e6b3e" opacity="0.7" />
+    <rect x="270" y="80" width="30" height="240" rx="6" fill="#1e6b3e" />
+    
+    {/* Floating Coin Stacks next to bars */}
+    <g transform="translate(330, 160)">
+      <rect x="0" y="130" width="36" height="10" rx="5" fill="#facc15" />
+      <rect x="0" y="122" width="36" height="10" rx="5" fill="#ca8a04" />
+      <rect x="0" y="114" width="36" height="10" rx="5" fill="#facc15" />
+      <rect x="0" y="106" width="36" height="10" rx="5" fill="#eab308" />
+    </g>
+
+    <g transform="translate(380, 100)">
+      <rect x="0" y="190" width="36" height="10" rx="5" fill="#facc15" />
+      <rect x="0" y="182" width="36" height="10" rx="5" fill="#ca8a04" />
+      <rect x="0" y="174" width="36" height="10" rx="5" fill="#facc15" />
+      <rect x="0" y="166" width="36" height="10" rx="5" fill="#eab308" />
+      <rect x="0" y="158" width="36" height="10" rx="5" fill="#ca8a04" />
+      <rect x="0" y="150" width="36" height="10" rx="5" fill="#facc15" />
+    </g>
+    
+    {/* Upward Gold Arrow Trend */}
+    <path d="M70 290l80-50 60-50 60 40 80-110" stroke="#facc15" strokeWidth="4" strokeLinecap="round" />
+    <polygon points="410,120 400,105 415,100" fill="#facc15" />
+
+    {/* Users floating checking document */}
+    <g transform="translate(100, 60)">
+      <rect x="0" y="0" width="130" height="70" rx="8" fill="#ffffff" filter="drop-shadow(0 4px 10px rgba(0,0,0,0.06))" />
+      <circle cx="25" cy="35" r="14" fill="#e8f5e9" />
+      <path d="M20 39c0-3 2.5-5 5-5s5 2 5 5" stroke="#1e6b3e" strokeWidth="2" />
+      <circle cx="25" cy="31" r="4" fill="#1e6b3e" />
+      <rect x="48" y="24" width="60" height="8" rx="4" fill="#e5e7eb" />
+      <rect x="48" y="38" width="40" height="8" rx="4" fill="#a16207" opacity="0.3" />
+    </g>
+    
+    {/* Floating document shield check */}
+    <g transform="translate(240, 210)">
+      <rect x="0" y="0" width="90" height="60" rx="8" fill="#ffffff" filter="drop-shadow(0 4px 10px rgba(0,0,0,0.06))" />
+      <path d="M20 18h50M20 30h40M20 42h30" stroke="#cbe2d6" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="68" cy="40" r="12" fill="#166534" />
+      <path d="M64 40l3 3 5-5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+    </g>
+  </svg>
+);
+
+const Register = () => {
+  const { register } = useAuth();
+  
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  
+  // Files
+  const [aadharFile, setAadharFile] = useState(null);
+  const [panFile, setPanFile] = useState(null);
+  
+  // Files previews names
+  const [aadharName, setAadharName] = useState('');
+  const [panName, setPanName] = useState('');
+
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const handleFileChange = (e, fileType) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please upload only image files (jpg, jpeg, png, webp)');
+      return;
+    }
+
+    if (fileType === 'aadhar') {
+      setAadharFile(file);
+      setAadharName(file.name);
+    } else if (fileType === 'pan') {
+      setPanFile(file);
+      setPanName(file.name);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!aadharFile || !panFile) {
+      setError('Please upload images for both Aadhar card and PAN card proofs.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('email', email);
+      formData.append('phone', phone);
+      formData.append('password', password);
+      formData.append('aadhar', aadharFile);
+      formData.append('pan', panFile);
+
+      await register(formData);
+      setSuccess(true);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '1.5rem', backgroundColor: '#fbfcf9' }}>
+        <div className="glass-panel card-premium" style={{
+          width: '100%',
+          maxWidth: '480px',
+          padding: '3rem',
+          textAlign: 'center',
+          backgroundColor: '#ffffff',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid rgba(30, 107, 62, 0.08)',
+          boxShadow: '0 10px 30px rgba(30, 107, 62, 0.04)'
+        }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            borderRadius: '50%',
+            backgroundColor: '#e8f5e9',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 1.5rem auto'
+          }}>
+            <CheckCircle size={48} color="#166534" />
+          </div>
+          <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#166534', marginBottom: '1rem' }}>Registration Submitted!</h2>
+          <p style={{ color: '#4b5563', fontSize: '1.05rem', lineHeight: '1.6', marginBottom: '2rem' }}>
+            Thank you for registering. Your details and document proofs (Aadhar & PAN) have been sent to the Superadmin for verification.
+          </p>
+          <div style={{
+            backgroundColor: '#fefbeb',
+            padding: '1rem',
+            borderRadius: 'var(--radius-md)',
+            border: '1.5px dashed #ca8a04',
+            marginBottom: '2.25rem',
+            fontSize: '0.85rem',
+            color: '#713f12',
+            textAlign: 'left',
+            lineHeight: 1.4
+          }}>
+            <strong>Note:</strong> You will be allowed to log in only after the Superadmin verifies and approves your registration profile.
+          </div>
+          <Link to="/login" className="btn-primary" style={{
+            display: 'flex',
+            width: '100%',
+            height: '48px',
+            borderRadius: 'var(--radius-full)',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 700,
+            fontSize: '1rem',
+            boxShadow: '0 4px 12px rgba(30, 107, 62, 0.2)'
+          }}>
+            Go to Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      display: 'flex',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: '#fbfcf9',
+    }} className="register-page-container">
+      
+      {/* Desktop Left Column - Hero Illustration Banner */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        padding: '3rem',
+        background: 'linear-gradient(180deg, #f0fdf4 0%, #e2efe8 100%)',
+        borderRight: '1px solid rgba(30, 107, 62, 0.08)'
+      }} className="register-hero-section">
+        {/* Header Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{
+            width: '44px',
+            height: '44px',
+            borderRadius: '50%',
+            background: 'white',
+            border: '2.5px solid #1e6b3e',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            boxShadow: '0 2px 6px rgba(30, 107, 62, 0.15)'
+          }}>
+            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1e6b3e', fontFamily: 'Outfit, sans-serif' }}>S</span>
+            <div style={{
+              position: 'absolute',
+              bottom: '1px',
+              right: '2px',
+              width: '8px',
+              height: '8px',
+              background: '#ca8a04',
+              borderRadius: '50% 0 50% 50%',
+              transform: 'rotate(-45deg)'
+            }} />
+            <div style={{
+              position: 'absolute',
+              bottom: '1px',
+              left: '2px',
+              width: '8px',
+              height: '8px',
+              background: '#1e6b3e',
+              borderRadius: '50% 50% 50% 0',
+              transform: 'rotate(45deg)'
+            }} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.1 }}>
+            <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1e6b3e', letterSpacing: '0.03em' }}>SANTHOSH</span>
+            <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#4b5563', letterSpacing: '0.15em' }}>— CHIT BOOK —</span>
+          </div>
+        </div>
+
+        {/* Content Block */}
+        <div style={{ margin: '3rem 0', maxWidth: '460px' }}>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#166534', lineHeight: 1.2, marginBottom: '1rem' }}>
+            Start Saving Together
+          </h1>
+          <p style={{ color: '#4b5563', fontSize: '1.1rem', lineHeight: 1.6, marginBottom: '2rem' }}>
+            Submit your documents securely. Become part of premium chit fund schemes and watch your wealth grow.
+          </p>
+
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            backgroundColor: '#fff',
+            border: '1.5px solid #166534',
+            padding: '0.5rem 1rem',
+            borderRadius: 'var(--radius-full)',
+            color: '#166534',
+            fontWeight: 700,
+            fontSize: '0.9rem',
+            boxShadow: 'var(--shadow-sm)'
+          }}>
+            <ShieldCheck size={18} />
+            <span>100% Encrypted & Safe Uploads</span>
+          </div>
+
+          <div style={{ marginTop: '2.5rem' }}>
+            <RegisterIllustration />
+          </div>
+        </div>
+
+        {/* Slider dots */}
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#cbe2d6' }} />
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#1e6b3e' }} />
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#cbe2d6' }} />
+        </div>
+      </div>
+
+      {/* Right Column - Register Box */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '2rem 1.5rem',
+        overflowY: 'auto'
+      }}>
+        {/* Mobile Header Logo (Visible only on mobile) */}
+        <div className="mobile-login-logo" style={{ display: 'none', marginBottom: '1.5rem', alignItems: 'center', gap: '0.7rem' }}>
+          <div style={{
+            width: '38px',
+            height: '38px',
+            borderRadius: '50%',
+            background: 'white',
+            border: '2px solid #1e6b3e',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative'
+          }}>
+            <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1e6b3e', transform: 'translateY(-1px)' }}>S</span>
+            <div style={{ position: 'absolute', bottom: '1px', right: '1px', width: '6px', height: '6px', background: '#ca8a04', borderRadius: '50% 0 50% 50%', transform: 'rotate(-45deg)' }} />
+            <div style={{ position: 'absolute', bottom: '1px', left: '1px', width: '6px', height: '6px', background: '#1e6b3e', borderRadius: '50% 50% 50% 0', transform: 'rotate(45deg)' }} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1 }}>
+            <span style={{ fontSize: '1.15rem', fontWeight: 800, color: '#1e6b3e' }}>SANTHOSH</span>
+            <span style={{ fontSize: '0.55rem', fontWeight: 700, color: '#4b5563', letterSpacing: '0.12em' }}>CHIT BOOK</span>
+          </div>
+        </div>
+
+        {/* Outer Card wrapping the Form */}
+        <div className="glass-panel card-premium" style={{
+          width: '100%',
+          maxWidth: '480px',
+          padding: '2.25rem',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid rgba(30, 107, 62, 0.08)',
+          backgroundColor: '#ffffff',
+          boxShadow: '0 10px 30px rgba(30, 107, 62, 0.04)'
+        }}>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#166534', marginBottom: '0.25rem' }}>Create Account</h2>
+            <p style={{ color: '#6b7280', fontSize: '0.85rem' }}>
+              Submit your KYC details to register.
+            </p>
+          </div>
+
+          {error && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.75rem',
+              backgroundColor: 'rgba(239, 68, 68, 0.05)',
+              border: '1px solid var(--color-danger)',
+              borderRadius: 'var(--radius-md)',
+              padding: '0.75rem 1rem',
+              marginBottom: '1.25rem',
+              color: '#b91c1c',
+              fontSize: '0.85rem'
+            }}>
+              <ShieldAlert size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit}>
+            <div className="input-group">
+              <div style={{ position: 'relative' }}>
+                <User size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+                <input
+                  id="name"
+                  type="text"
+                  required
+                  placeholder="Full Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="input-field"
+                  style={{ paddingLeft: '2.75rem', height: '44px', fontSize: '0.9rem' }}
+                />
+              </div>
+            </div>
+
+            <div className="input-group">
+              <div style={{ position: 'relative' }}>
+                <Mail size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  placeholder="Email Address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input-field"
+                  style={{ paddingLeft: '2.75rem', height: '44px', fontSize: '0.9rem' }}
+                />
+              </div>
+            </div>
+
+            <div className="input-group">
+              <div style={{ position: 'relative' }}>
+                <Phone size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+                <input
+                  id="phone"
+                  type="tel"
+                  required
+                  placeholder="Phone Number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="input-field"
+                  style={{ paddingLeft: '2.75rem', height: '44px', fontSize: '0.9rem' }}
+                />
+              </div>
+            </div>
+
+            <div className="input-group" style={{ marginBottom: '1.25rem' }}>
+              <div style={{ position: 'relative' }}>
+                <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  minLength={6}
+                  placeholder="Choose Password (min 6 chars)"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input-field"
+                  style={{ paddingLeft: '2.75rem', height: '44px', fontSize: '0.9rem' }}
+                />
+              </div>
+            </div>
+
+            {/* Document Upload Fields */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              <div>
+                <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#4b5563', marginBottom: '0.375rem' }}>Aadhar Card Proof</span>
+                <label className="input-field" style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.35rem',
+                  padding: '0.75rem',
+                  border: aadharFile ? '1.5px solid #166534' : '1.5px dashed #d1d5db',
+                  borderRadius: 'var(--radius-md)',
+                  backgroundColor: aadharFile ? '#f0fdf4' : '#fafbfc',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  height: '92px',
+                  transition: 'all 0.2s ease'
+                }}>
+                  {aadharFile ? (
+                    <div style={{ color: '#166534', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem' }}>
+                      <Check size={20} style={{ strokeWidth: 3 }} />
+                      <span style={{ fontSize: '0.7rem', fontWeight: 700, maxWidth: '130px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {aadharName}
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload size={18} color="#6b7280" />
+                      <span style={{ fontSize: '0.7rem', color: '#6b7280', fontWeight: 500 }}>Upload Aadhar</span>
+                    </>
+                  )}
+                  <input type="file" required accept="image/*" onChange={(e) => handleFileChange(e, 'aadhar')} style={{ display: 'none' }} />
+                </label>
+              </div>
+
+              <div>
+                <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#4b5563', marginBottom: '0.375rem' }}>PAN Card Proof</span>
+                <label className="input-field" style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.35rem',
+                  padding: '0.75rem',
+                  border: panFile ? '1.5px solid #166534' : '1.5px dashed #d1d5db',
+                  borderRadius: 'var(--radius-md)',
+                  backgroundColor: panFile ? '#f0fdf4' : '#fafbfc',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  height: '92px',
+                  transition: 'all 0.2s ease'
+                }}>
+                  {panFile ? (
+                    <div style={{ color: '#166534', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem' }}>
+                      <Check size={20} style={{ strokeWidth: 3 }} />
+                      <span style={{ fontSize: '0.7rem', fontWeight: 700, maxWidth: '130px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {panName}
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload size={18} color="#6b7280" />
+                      <span style={{ fontSize: '0.7rem', color: '#6b7280', fontWeight: 500 }}>Upload PAN</span>
+                    </>
+                  )}
+                  <input type="file" required accept="image/*" onChange={(e) => handleFileChange(e, 'pan')} style={{ display: 'none' }} />
+                </label>
+              </div>
+            </div>
+
+            {/* Register button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary"
+              style={{
+                width: '100%',
+                height: '46px',
+                borderRadius: 'var(--radius-full)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '0 1.5rem',
+                fontSize: '0.95rem',
+                fontWeight: 700,
+                boxShadow: '0 4px 12px rgba(30, 107, 62, 0.2)'
+              }}
+            >
+              <span>{loading ? 'Submitting Registration...' : 'Register'}</span>
+              <div style={{
+                width: '26px',
+                height: '26px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <ArrowRight size={14} />
+              </div>
+            </button>
+          </form>
+
+          {/* Login redirection */}
+          <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.85rem', color: '#6b7280' }}>
+            Already have an account?{' '}
+            <Link to="/login" style={{ color: '#166534', fontWeight: 700, textDecoration: 'none' }}>
+              Log In
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Styled JSX for Responsiveness */}
+      <style>{`
+        @media (max-width: 768px) {
+          .register-page-container {
+            flex-direction: column !important;
+          }
+          .register-hero-section {
+            display: none !important;
+          }
+          .mobile-login-logo {
+            display: flex !important;
+          }
+          .glass-panel.card-premium {
+            padding: 1.5rem !important;
+            box-shadow: none !important;
+            border: none !important;
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default Register;

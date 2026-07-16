@@ -1,0 +1,334 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* Premium Light Grey & Forest Green Theme */
+  --bg-main: #fbfcfa;          /* Soft warm cream background */
+  --bg-card: rgba(255, 255, 255, 0.95); /* Semi-transparent glass white */
+  --color-primary: #111827;     /* Dark grey/charcoal text */
+  --color-secondary: #4b5563;   /* Muted grey text */
+  
+  --color-primary-green: #1e6b3e; /* Forest green */
+  --color-primary-green-dark: #124d2a; /* Darker forest green */
+  --color-primary-green-light: #e8f5e9; /* Soft green tint */
+  
+  --accent-yellow: #fef3c7;    /* Soft gold/amber main accent */
+  --accent-yellow-dark: #ca8a04; /* Golden yellow for hovers/states */
+  --accent-yellow-light: #fefbeb; /* Soft cream yellow */
+  
+  --color-success: #166534;    /* Strong forest green for success badge */
+  --color-danger: #dc2626;
+  --color-warning: #d97706;
+  --color-info: #2563eb;
+  
+  --border-subtle: #e5e7eb;
+  --border-focus: #1e6b3e;     /* Focused border turns forest green */
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-premium: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+  
+  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.15s ease-in-out;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+}
+
+body {
+  background: linear-gradient(135deg, #fdfdfa 0%, #f4f6ee 100%);
+  min-height: 100vh;
+  color: var(--color-primary);
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Base utility classes */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* Layout helpers */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-premium);
+}
+
+/* Input Fields styling */
+.input-group {
+  margin-bottom: 1.25rem;
+}
+.input-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.375rem;
+  color: var(--color-secondary);
+}
+.input-field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  outline: none;
+  transition: var(--transition-fast);
+}
+.input-field:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.15);
+}
+
+/* Keyframe Animations */
+
+/* Fade/Slide Up for scroll reveal */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-on-scroll {
+  opacity: 0;
+}
+.reveal-on-scroll.active {
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Typewriter animation */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: var(--accent-yellow-dark) }
+}
+
+.typewriter {
+  display: inline-block;
+  overflow: hidden;
+  border-right: 3px solid var(--accent-yellow-dark);
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+  animation: 
+    typing 3.5s steps(30, end) infinite alternate,
+    blink-caret 0.75s step-end infinite;
+}
+
+/* Pulse highlight */
+@keyframes softPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(250, 204, 21, 0);
+  }
+}
+.pulse-accent {
+  animation: softPulse 2s infinite;
+}
+
+/* Page slide transition */
+.page-transition-enter {
+  opacity: 0;
+  transform: scale(0.98) translateY(10px);
+}
+.page-transition-enter-active {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition: var(--transition-smooth);
+}
+
+/* Premium Buttons */
+.btn-primary {
+  background: var(--color-primary-green);
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  border: none;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-smooth);
+}
+.btn-primary:hover {
+  background: var(--color-primary-green-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: #ffffff;
+  color: var(--color-primary);
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-smooth);
+}
+.btn-secondary:hover {
+  background: var(--color-primary-green-light);
+  color: var(--color-primary-green-dark);
+  border-color: var(--color-primary-green);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-gold-outline {
+  background: transparent;
+  color: var(--accent-yellow-dark);
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--accent-yellow-dark);
+  transition: var(--transition-smooth);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+.btn-gold-outline:hover {
+  background: var(--accent-yellow-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+}
+.badge-pending {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-warning);
+}
+.badge-approved {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-success);
+}
+.badge-rejected {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--color-danger);
+}
+.badge-active {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--color-info);
+}
+
+.card-premium {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+  transition: var(--transition-smooth);
+}
+.card-premium:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Global Mobile Responsiveness Overrides */
+@media (max-width: 768px) {
+  /* Enforce single columns on elements with side-by-side grids */
+  .admin-chit-grid,
+  .user-dashboard-grid,
+  .admin-records-grid,
+  .responsive-doc-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.25rem !important;
+  }
+
+  /* Convert grids of forms or specifications to vertical lists */
+  div[style*="grid-template-columns"],
+  div[style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  /* Optimize card spacing for screen real estate */
+  .card-premium,
+  .glass-panel.login-box {
+    padding: 1.25rem !important;
+  }
+
+  /* Compact input layouts */
+  .input-group {
+    margin-bottom: 1rem;
+  }
+
+  /* Optimize tabular ledgers for horizontal swiping */
+  table {
+    font-size: 0.8rem !important;
+  }
+  th, td {
+    padding: 0.6rem 0.4rem !important;
+  }
+  
+  /* Prevent title clipping */
+  h1 {
+    font-size: 1.6rem !important;
+  }
+  h2 {
+    font-size: 1.35rem !important;
+  }
+  h3 {
+    font-size: 1.15rem !important;
+  }
+}
+
