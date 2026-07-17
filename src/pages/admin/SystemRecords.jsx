@@ -36,6 +36,85 @@ const SystemRecords = () => {
   // Lightbox Preview State
   const [lightboxUrl, setLightboxUrl] = useState(null);
 
+  // Upload Modal State
+  const [uploadModal, setUploadModal] = useState({ isOpen: false, chitId: null, userId: null, amount: null, monthNumber: null });
+  const [uploadData, setUploadData] = useState({ file: null, text: '' });
+  const [uploadLoading, setUploadLoading] = useState(false);
+
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = event => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_DIM = 800;
+          let { width, height } = img;
+          if (width > height) {
+            if (width > MAX_DIM) {
+              height *= MAX_DIM / width;
+              width = MAX_DIM;
+            }
+          } else {
+            if (height > MAX_DIM) {
+              width *= MAX_DIM / height;
+              height = MAX_DIM;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob(blob => {
+            resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() }));
+          }, 'image/jpeg', 0.7);
+        };
+      };
+    });
+  };
+
+  const handleUploadSubmit = async (e) => {
+    e.preventDefault();
+    if (!uploadData.file) return alert('Please select an image file');
+    setUploadLoading(true);
+
+    try {
+      const compressedFile = await compressImage(uploadData.file);
+
+      const formData = new FormData();
+      formData.append('userId', uploadModal.userId);
+      formData.append('amount', uploadModal.amount);
+      formData.append('monthNumber', uploadModal.monthNumber);
+      if (uploadData.text) formData.append('transactionId', uploadData.text);
+      formData.append('proof', compressedFile);
+
+      const response = await fetch(`${API_URL}/admin/chits/${uploadModal.chitId}/mark-paid`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      });
+      const data = await response.json();
+      if (data.success) {
+        setSuccessMessage('Payment marked with proof successfully');
+        setTimeout(() => setSuccessMessage(''), 3000);
+        setUploadModal({ isOpen: false, chitId: null, userId: null, amount: null, monthNumber: null });
+        setUploadData({ file: null, text: '' });
+        fetchRecords(false);
+      } else {
+        alert(data.message || 'Failed to mark payment');
+      }
+    } catch (error) {
+      console.error('Error marking with proof:', error);
+      alert('Connection error');
+    } finally {
+      setUploadLoading(false);
+    }
+  };
+
   const fetchRecords = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     try {
@@ -463,13 +542,28 @@ const SystemRecords = () => {
                                     {hasPaidCurrentMonth ? (
                                       <span className="badge badge-approved" style={{ fontSize: '0.7rem' }}>Paid</span>
                                     ) : (
-                                      <button
-                                        onClick={() => handleMarkAsPaid(record.chit.id, member.userId, record.chit.monthlyContribution, record.chit.currentMonth)}
-                                        className="btn-primary"
-                                        style={{ padding: '0.35rem 0.75rem', fontSize: '0.7rem', borderRadius: 'var(--radius-sm)' }}
-                                      >
-                                        Mark as Paid
-                                      </button>
+                                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                                        <button
+                                          onClick={() => handleMarkAsPaid(record.chit.id, member.userId, record.chit.monthlyContribution, record.chit.currentMonth)}
+                                          className="btn-primary"
+                                          style={{ padding: '0.35rem 0.75rem', fontSize: '0.7rem', borderRadius: 'var(--radius-sm)' }}
+                                        >
+                                          Mark as Paid
+                                        </button>
+                                        <button
+                                          onClick={() => setUploadModal({
+                                            isOpen: true,
+                                            chitId: record.chit.id,
+                                            userId: member.userId,
+                                            amount: record.chit.monthlyContribution,
+                                            monthNumber: record.chit.currentMonth
+                                          })}
+                                          className="btn-secondary"
+                                          style={{ padding: '0.35rem 0.75rem', fontSize: '0.7rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-primary)' }}
+                                        >
+                                          Upload Proof
+                                        </button>
+                                      </div>
                                     )}
                                   </div>
                                 );
@@ -559,6 +653,54 @@ const SystemRecords = () => {
             alt="Ledger Document Preview" 
             style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-lg)' }}
           />
+        </div>
+      )}
+
+      {/* Upload Proof Modal */}
+      {uploadModal.isOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 200,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+        }}>
+          <div className="card-premium" style={{ width: '100%', maxWidth: '400px', backgroundColor: '#fff', padding: '1.5rem', borderRadius: 'var(--radius-md)' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1rem' }}>Upload Proof & Mark Paid</h3>
+            <form onSubmit={handleUploadSubmit}>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem' }}>Transaction ID / Notes</label>
+                <input
+                  type="text"
+                  placeholder="Enter notes or Txn ID"
+                  className="input-field"
+                  value={uploadData.text}
+                  onChange={e => setUploadData({ ...uploadData, text: e.target.value })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem' }}>Payment Proof Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => setUploadData({ ...uploadData, file: e.target.files[0] })}
+                  style={{ width: '100%', fontSize: '0.85rem' }}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => { setUploadModal({ isOpen: false, chitId: null, userId: null, amount: null, monthNumber: null }); setUploadData({ file: null, text: '' }); }}
+                  className="btn-secondary"
+                  disabled={uploadLoading}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn-primary" disabled={uploadLoading || !uploadData.file}>
+                  {uploadLoading ? 'Uploading...' : 'Submit & Mark Paid'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

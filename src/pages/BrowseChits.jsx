@@ -9,6 +9,7 @@ const BrowseChits = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchChits = async () => {
     try {
@@ -72,32 +73,59 @@ const BrowseChits = () => {
           <p style={{ color: 'var(--color-secondary)', marginTop: '0.25rem' }}>
             Find the perfect saving and borrowing plan that matches your monthly goals.
           </p>
+          
+          <div style={{ marginTop: '1.5rem', position: 'relative', maxWidth: '400px' }}>
+            <div style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', color: 'var(--color-secondary)' }}>
+              <Search size={18} />
+            </div>
+            <input
+              type="text"
+              placeholder="Enter exact group name to search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="input-field"
+              style={{ paddingLeft: '2.5rem', width: '100%', padding: '0.75rem 0.75rem 0.75rem 2.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}
+            />
+          </div>
         </div>
       </ScrollAnimationWrapper>
 
-      {message.text && (
-        <div style={{
-          padding: '0.75rem 1.25rem',
-          borderRadius: 'var(--radius-md)',
-          marginBottom: '1.5rem',
-          fontSize: '0.9rem',
-          backgroundColor: message.type === 'success' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.08)',
-          border: `1px solid ${message.type === 'success' ? 'var(--color-success)' : 'var(--color-danger)'}`,
-          color: message.type === 'success' ? '#065f46' : '#b91c1c'
-        }}>
-          {message.text}
-        </div>
-      )}
+      {(() => {
+        const filteredChits = searchQuery.trim() !== '' 
+          ? chits.filter(c => c.name.toLowerCase() === searchQuery.trim().toLowerCase()) 
+          : [];
 
-      {chits.length === 0 ? (
-        <div className="card-premium" style={{ textAlign: 'center', padding: '3rem' }}>
-          <HelpCircle size={48} style={{ margin: '0 auto 1rem auto', color: 'var(--color-secondary)' }} />
-          <h3 style={{ fontWeight: 700 }}>No Chit Schemes Available</h3>
-          <p style={{ color: 'var(--color-secondary)', marginTop: '0.25rem' }}>The Superadmin has not created any chit groups yet.</p>
-        </div>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
-          {chits.map((chit) => {
+        return (
+          <>
+            {message.text && (
+              <div style={{
+                padding: '0.75rem 1.25rem',
+                borderRadius: 'var(--radius-md)',
+                marginBottom: '1.5rem',
+                fontSize: '0.9rem',
+                backgroundColor: message.type === 'success' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.08)',
+                border: `1px solid ${message.type === 'success' ? 'var(--color-success)' : 'var(--color-danger)'}`,
+                color: message.type === 'success' ? '#065f46' : '#b91c1c'
+              }}>
+                {message.text}
+              </div>
+            )}
+
+            {searchQuery.trim() === '' ? (
+              <div className="card-premium" style={{ textAlign: 'center', padding: '3rem' }}>
+                <Search size={48} style={{ margin: '0 auto 1rem auto', color: 'var(--color-secondary)' }} />
+                <h3 style={{ fontWeight: 700 }}>Search for a Scheme</h3>
+                <p style={{ color: 'var(--color-secondary)', marginTop: '0.25rem' }}>Enter the exact name of the scheme to join.</p>
+              </div>
+            ) : filteredChits.length === 0 ? (
+              <div className="card-premium" style={{ textAlign: 'center', padding: '3rem' }}>
+                <HelpCircle size={48} style={{ margin: '0 auto 1rem auto', color: 'var(--color-secondary)' }} />
+                <h3 style={{ fontWeight: 700 }}>No Scheme Found</h3>
+                <p style={{ color: 'var(--color-secondary)', marginTop: '0.25rem' }}>Could not find a scheme exactly matching "{searchQuery}".</p>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
+                {filteredChits.map((chit) => {
             // Find current user's state in this chit
             const enrollment = chit.members.find(m => m.user.id === user.id);
             const approvedCount = chit.members.filter(m => m.status === 'approved').length;
@@ -199,6 +227,9 @@ const BrowseChits = () => {
           })}
         </div>
       )}
+      </>
+      );
+      })()}
     </div>
   );
 };
