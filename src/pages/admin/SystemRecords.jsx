@@ -13,8 +13,13 @@ import {
   Calendar,
   CheckCircle,
   Hourglass,
-  AlertCircle
+  AlertCircle,
+  Download,
+  FileSpreadsheet
 } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 const SystemRecords = () => {
   const { token, API_URL } = useAuth();
@@ -224,6 +229,187 @@ const SystemRecords = () => {
     record.chit.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // ─── Export Helpers ───────────────────────────────────────────────
+  const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+  const exportUsersPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Santhosh Chit Book — Users Records', 14, 18);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Exported on ${today}`, 14, 26);
+
+    const rows = filteredUsers.flatMap(({ user, chits, payments }) => {
+      const baseRow = [
+        user.name,
+        user.email,
+        user.phone || '—',
+        chits.length.toString(),
+        payments.filter(p => p.status === 'approved').length.toString(),
+        `Rs.${payments.filter(p => p.status === 'approved').reduce((s, p) => s + (p.amount || 0), 0).toLocaleString()}`
+      ];
+      return [baseRow];
+    });
+
+    autoTable(doc, {
+      startY: 32,
+      head: [['Name', 'Email', 'Phone', 'Chits Joined', 'Paid Months', 'Total Paid']],
+      body: rows,
+      styles: { fontSize: 8, cellPadding: 3 },
+      headStyles: { fillColor: [22, 163, 74], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [240, 253, 244] },
+      margin: { left: 14, right: 14 }
+    });
+
+    // Installment details sub-table for each user
+    filteredUsers.forEach(({ user, payments }) => {
+      if (payments.length === 0) return;
+      const prevY = doc.lastAutoTable.finalY + 8;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Installments — ${user.name}`, 14, prevY);
+      autoTable(doc, {
+        startY: prevY + 4,
+        head: [['Chit', 'Month', 'Amount', 'Transaction ID', 'Status']],
+        body: payments.map(p => [
+          p.chit?.name || '—',
+          `Month ${p.monthNumber}`,
+          `Rs.${(p.amount || 0).toLocaleString()}`,
+          p.transactionId || '—',
+          p.status
+        ]),
+        styles: { fontSize: 7.5, cellPadding: 2.5 },
+        headStyles: { fillColor: [37, 99, 235], textColor: 255 },
+        margin: { left: 14, right: 14 }
+      });
+    });
+
+    doc.save(`Users_Records_${today.replace(/ /g, '_')}.pdf`);
+  };
+
+  const exportUsersExcel = () => {
+    const wb = XLSX.utils.book_new();
+
+    // Users summary sheet
+    const userRows = filteredUsers.map(({ user, chits, payments }) => ({
+      Name: user.name,
+      Email: user.email,
+      Phone: user.phone || '',
+      'Chits Joined': chits.length,
+      'Paid Installments': payments.filter(p => p.status === 'approved').length,
+      'Total Paid (Rs)': payments.filter(p => p.status === 'approved').reduce((s, p) => s + (p.amount || 0), 0),
+      'Pending Installments': payments.filter(p => p.status === 'pending').length,
+      'Joined On': new Date(user.createdAt).toLocaleDateString('en-GB')
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(userRows), 'Users Summary');
+
+    // Installments detail sheet
+    const payRows = filteredUsers.flatMap(({ user, payments }) =>
+      payments.map(p => ({
+        'User Name': user.name,
+        Email: user.email,
+        Chit: p.chit?.name || '—',
+        Month: `Month ${p.monthNumber}`,
+        'Amount (Rs)': p.amount || 0,
+        'Transaction ID': p.transactionId || '',
+        Status: p.status,
+        'Submitted On': p.createdAt ? new Date(p.createdAt).toLocaleDateString('en-GB') : ''
+      }))
+    );
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(payRows), 'Installments');
+
+    XLSX.writeFile(wb, `Users_Records_${today.replace(/ /g, '_')}.xlsx`);
+  };
+
+  const exportChitsPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Santhosh Chit Book \u2014 Chit Pool Records', 14, 18);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Exported on ${today}`, 14, 26);
+
+    autoTable(doc, {
+      startY: 32,
+      head: [['Chit Name', 'Status', 'Pool Value', 'EMI', 'Duration', 'Members', 'Collected']],
+      body: filteredChits.map(({ chit, payments }) => [
+        chit.name,
+        chit.status,
+        `Rs.${(chit.chitValue || 0).toLocaleString()}`,
+        `Rs.${(chit.monthlyContribution || 0).toLocaleString()}`,
+        `${chit.durationMonths} months`,
+        (chit.members || []).filter(m => m.status === 'approved').length.toString(),
+        `Rs.${payments.filter(p => p.status === 'approved').reduce((s, p) => s + (p.amount || 0), 0).toLocaleString()}`
+      ]),
+      styles: { fontSize: 8, cellPadding: 3 },
+      headStyles: { fillColor: [22, 163, 74], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [240, 253, 244] },
+      margin: { left: 14, right: 14 }
+    });
+
+    // Payment breakdown per chit
+    filteredChits.forEach(({ chit, payments }) => {
+      if (payments.length === 0) return;
+      const prevY = doc.lastAutoTable.finalY + 8;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Payments \u2014 ${chit.name}`, 14, prevY);
+      autoTable(doc, {
+        startY: prevY + 4,
+        head: [['Member', 'Month', 'Amount', 'Transaction ID', 'Status']],
+        body: payments.map(p => [
+          p.user?.name || '\u2014',
+          `Month ${p.monthNumber}`,
+          `Rs.${(p.amount || 0).toLocaleString()}`,
+          p.transactionId || '\u2014',
+          p.status
+        ]),
+        styles: { fontSize: 7.5, cellPadding: 2.5 },
+        headStyles: { fillColor: [124, 58, 237], textColor: 255 },
+        margin: { left: 14, right: 14 }
+      });
+    });
+
+    doc.save(`Chit_Records_${today.replace(/ /g, '_')}.pdf`);
+  };
+
+  const exportChitsExcel = () => {
+    const wb = XLSX.utils.book_new();
+
+    // Chits summary
+    const chitRows = filteredChits.map(({ chit, payments }) => ({
+      'Chit Name': chit.name,
+      Status: chit.status,
+      'Pool Value (Rs)': chit.chitValue || 0,
+      'Monthly EMI (Rs)': chit.monthlyContribution || 0,
+      'Duration (Months)': chit.durationMonths,
+      'Approved Members': (chit.members || []).filter(m => m.status === 'approved').length,
+      'Total Members Configured': chit.totalMembers || 0,
+      'Total Collected (Rs)': payments.filter(p => p.status === 'approved').reduce((s, p) => s + (p.amount || 0), 0),
+      'Managed By': chit.creator?.name || 'Superadmin'
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(chitRows), 'Chits Summary');
+
+    // Payments per chit
+    const payRows = filteredChits.flatMap(({ chit, payments }) =>
+      payments.map(p => ({
+        'Chit Name': chit.name,
+        'Member Name': p.user?.name || '\u2014',
+        Month: `Month ${p.monthNumber}`,
+        'Amount (Rs)': p.amount || 0,
+        'Transaction ID': p.transactionId || '',
+        Status: p.status,
+        'Submitted On': p.createdAt ? new Date(p.createdAt).toLocaleDateString('en-GB') : ''
+      }))
+    );
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(payRows), 'Chit Payments');
+
+    XLSX.writeFile(wb, `Chit_Records_${today.replace(/ /g, '_')}.xlsx`);
+  };
+
   if (loading) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading system logs database...</div>;
   }
@@ -289,23 +475,55 @@ const SystemRecords = () => {
             </button>
           </div>
 
-          {/* Search Box */}
-          <div style={{ position: 'relative', width: '100%', maxWidth: '320px' }}>
-            <Search size={18} style={{
-              position: 'absolute',
-              left: '1rem',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: 'var(--color-secondary)'
-            }} />
-            <input
-              type="text"
-              placeholder={activeTab === 'users' ? 'Search users by name, email...' : 'Search chits by name...'}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="input-field"
-              style={{ paddingLeft: '2.5rem' }}
-            />
+          {/* Right: Search + Export Buttons */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {/* Search Box */}
+            <div style={{ position: 'relative', minWidth: '200px', maxWidth: '280px' }}>
+              <Search size={16} style={{
+                position: 'absolute', left: '0.85rem', top: '50%',
+                transform: 'translateY(-50%)', color: 'var(--color-secondary)'
+              }} />
+              <input
+                type="text"
+                placeholder={activeTab === 'users' ? 'Search users...' : 'Search chits...'}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="input-field"
+                style={{ paddingLeft: '2.25rem', paddingTop: '0.55rem', paddingBottom: '0.55rem', fontSize: '0.85rem' }}
+              />
+            </div>
+
+            {/* Export Buttons */}
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                onClick={activeTab === 'users' ? exportUsersPDF : exportChitsPDF}
+                title={`Export ${activeTab === 'users' ? 'Users' : 'Chits'} to PDF`}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.4rem',
+                  padding: '0.55rem 0.9rem', borderRadius: '0.75rem',
+                  border: '1px solid #fecaca', backgroundColor: '#fef2f2',
+                  color: '#dc2626', fontWeight: 600, fontSize: '0.78rem',
+                  cursor: 'pointer', whiteSpace: 'nowrap'
+                }}
+              >
+                <Download size={14} />
+                <span>PDF</span>
+              </button>
+              <button
+                onClick={activeTab === 'users' ? exportUsersExcel : exportChitsExcel}
+                title={`Export ${activeTab === 'users' ? 'Users' : 'Chits'} to Excel`}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.4rem',
+                  padding: '0.55rem 0.9rem', borderRadius: '0.75rem',
+                  border: '1px solid #bbf7d0', backgroundColor: '#f0fdf4',
+                  color: '#16a34a', fontWeight: 600, fontSize: '0.78rem',
+                  cursor: 'pointer', whiteSpace: 'nowrap'
+                }}
+              >
+                <FileSpreadsheet size={14} />
+                <span>Excel</span>
+              </button>
+            </div>
           </div>
         </div>
       </ScrollAnimationWrapper>

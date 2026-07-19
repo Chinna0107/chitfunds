@@ -108,131 +108,286 @@ const Dashboard = () => {
 
   // ================= ADMIN / STAFF VIEW =================
   if (user.role === 'superadmin' || user.role === 'employee') {
+    const isSuperAdmin = user.role === 'superadmin';
+    const greeting = user.name ? user.name : (isSuperAdmin ? 'Admin' : 'Staff');
+
     return (
-      <div style={{ padding: '1rem', width: '100%' }}>
+      <div style={{ padding: '1rem', width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
+
+        {/* Greeting */}
         <ScrollAnimationWrapper>
-          <div style={{ marginBottom: '2rem' }}>
-            <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--color-primary-green)' }}>
-              Welcome back, <span style={{ color: 'var(--accent-yellow-dark)' }}>{user.role === 'superadmin' ? 'Admin' : 'Staff'}</span>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h1 className="dashboard-greeting">
+              Hello, {greeting} 👋
             </h1>
-            <p style={{ color: 'var(--color-secondary)', fontSize: '1rem' }}>
-              Here is your overview of Chit Fund platform activities.
+            <p style={{ color: '#6b7280', fontSize: '0.88rem', marginTop: '0.25rem' }}>
+              {isSuperAdmin ? 'Here\'s your platform overview and action center.' : 'Here\'s your chit management overview.'}
             </p>
           </div>
         </ScrollAnimationWrapper>
 
-        {/* Stats Grid */}
-        <div className="stats-grid-layout" style={{ display: 'grid', gap: '1.5rem', marginBottom: '2.5rem' }}>
-          <ScrollAnimationWrapper>
-            <div className="card-premium" style={{ display: 'flex', alignItems: 'center', gap: '1rem', backgroundColor: '#fff', border: '1px solid rgba(30, 107, 62, 0.08)' }}>
-              <div style={{ padding: '0.75rem', background: '#e8f5e9', borderRadius: 'var(--radius-md)' }}>
-                <Users size={28} color="#166534" />
-              </div>
-              <div>
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-secondary)', textTransform: 'uppercase', fontWeight: 700 }}>Active Members</p>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 800 }}>{stats?.totalUsers || 0}</h3>
-              </div>
+        {/* Stats Summary Card Row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#fff', padding: '1rem 0.25rem', marginBottom: '1.5rem', borderRadius: '1.25rem', border: '1px solid rgba(30, 107, 62, 0.08)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+          <div style={{ flex: 1, textAlign: 'center', borderRight: '1px solid #f3f4f6', padding: '0 0.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.35rem', color: '#16a34a' }}>
+              <Users size={20} />
             </div>
-          </ScrollAnimationWrapper>
-
-          <ScrollAnimationWrapper>
-            <div className="card-premium" style={{ display: 'flex', alignItems: 'center', gap: '1rem', backgroundColor: '#fff', border: '1px solid rgba(30, 107, 62, 0.08)' }}>
-              <div style={{ padding: '0.75rem', background: '#fefbeb', borderRadius: 'var(--radius-md)' }}>
-                <Clock size={28} color="#ca8a04" />
-              </div>
-              <div>
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-secondary)', textTransform: 'uppercase', fontWeight: 700 }}>Pending Users</p>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: stats?.pendingApprovals > 0 ? 'var(--color-warning)' : 'inherit' }}>
-                  {stats?.pendingApprovals || 0}
-                </h3>
-              </div>
+            <span className="stat-label">Members</span>
+            <span className="stat-value" style={{ color: '#16a34a' }}>{stats?.totalUsers || 0}</span>
+          </div>
+          <div style={{ flex: 1, textAlign: 'center', borderRight: '1px solid #f3f4f6', padding: '0 0.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.35rem', color: '#f59e0b' }}>
+              <Clock size={20} />
             </div>
-          </ScrollAnimationWrapper>
-
-          <ScrollAnimationWrapper>
-            <div className="card-premium" style={{ display: 'flex', alignItems: 'center', gap: '1rem', backgroundColor: '#fff', border: '1px solid rgba(30, 107, 62, 0.08)' }}>
-              <div style={{ padding: '0.75rem', background: '#e8f5e9', borderRadius: 'var(--radius-md)' }}>
-                <Briefcase size={28} color="#166534" />
-              </div>
-              <div>
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-secondary)', textTransform: 'uppercase', fontWeight: 700 }}>Active Chits</p>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 800 }}>{stats?.activeChits || 0} <span style={{ fontSize: '0.85rem', fontWeight: 400, color: 'var(--color-secondary)' }}>/ {stats?.totalChits || 0} total</span></h3>
-              </div>
+            <span className="stat-label">Pending Users</span>
+            <span className="stat-value" style={{ color: stats?.pendingApprovals > 0 ? '#f59e0b' : '#374151' }}>{stats?.pendingApprovals || 0}</span>
+          </div>
+          <div style={{ flex: 1, textAlign: 'center', borderRight: '1px solid #f3f4f6', padding: '0 0.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.35rem', color: '#22c55e' }}>
+              <Briefcase size={20} />
             </div>
-          </ScrollAnimationWrapper>
-
-          <ScrollAnimationWrapper>
-            <div className="card-premium" style={{ display: 'flex', alignItems: 'center', gap: '1rem', backgroundColor: '#fff', border: '1px solid rgba(30, 107, 62, 0.08)' }}>
-              <div style={{ padding: '0.75rem', background: '#fefbeb', borderRadius: 'var(--radius-md)' }}>
-                <IndianRupee size={28} color="#ca8a04" />
-              </div>
-              <div>
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-secondary)', textTransform: 'uppercase', fontWeight: 700 }}>Total Collected</p>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 800 }}>₹{(stats?.totalRevenue || 0).toLocaleString()}</h3>
-              </div>
+            <span className="stat-label">Active Chits</span>
+            <span className="stat-value" style={{ color: '#374151' }}>{stats?.activeChits || 0}</span>
+          </div>
+          <div style={{ flex: 1, textAlign: 'center', padding: '0 0.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.35rem', color: '#10b981' }}>
+              <IndianRupee size={20} />
             </div>
-          </ScrollAnimationWrapper>
+            <span className="stat-label">Collected</span>
+            <span className="stat-value" style={{ color: '#374151', fontSize: '1rem' }}>₹{((stats?.totalRevenue || 0) / 1000).toFixed(0)}K</span>
+          </div>
         </div>
 
-        {/* Action center */}
-        <ScrollAnimationWrapper>
-          <div className="glass-panel card-premium" style={{ padding: '2rem', borderRadius: 'var(--radius-lg)', backgroundColor: '#fff', border: '1px solid rgba(30, 107, 62, 0.08)' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-primary-green)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <TrendingUp size={22} color="var(--color-primary-green)" />
-              <span>{user.role === 'superadmin' ? 'Admin Action Items' : 'Staff Action Items'}</span>
-            </h2>
+        {/* Main Grid */}
+        <div className="dashboard-grid-layout" style={{ display: 'grid', gridTemplateColumns: '1.75fr 1fr', gap: '1.5rem' }}>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
-              {user.role === 'superadmin' && (
-                <div className="card-premium" style={{ border: '1px solid var(--border-subtle)', background: '#fafbfc' }}>
-                  <h4 style={{ fontWeight: 700, marginBottom: '0.5rem' }}>User Registration Approvals</h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--color-secondary)', marginBottom: '1.25rem' }}>
-                    Verify submitted Aadhar and PAN photos to activate new user accounts.
-                  </p>
-                  <Link to="/admin/users" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', padding: '0.5rem 1rem' }}>
-                    <span>Review {stats?.pendingApprovals || 0} Requests</span>
-                    <ArrowRight size={14} />
-                  </Link>
+          {/* Left: Action Cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
+            {/* Pending Payments — highlighted card */}
+            <div style={{ backgroundColor: '#fff', borderRadius: '1.25rem', border: '1px solid #f3f4f6', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', overflow: 'hidden' }}>
+              <div style={{ background: 'linear-gradient(135deg, #15803d 0%, #16a34a 60%, #22c55e 100%)', padding: '1.1rem 1.25rem', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: '-15px', right: '-15px', width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.07)' }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                    <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <FileCheck size={18} color="#fff" />
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff', margin: 0 }}>Payment Verifications</h3>
+                      <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)' }}>Review submitted receipts</span>
+                    </div>
+                  </div>
+                  {(stats?.pendingPaymentsCount || 0) > 0 && (
+                    <span style={{ backgroundColor: '#ef4444', color: '#fff', fontSize: '0.7rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '1rem', whiteSpace: 'nowrap' }}>
+                      {stats?.pendingPaymentsCount} Pending
+                    </span>
+                  )}
                 </div>
-              )}
-
-              <div className="card-premium" style={{ border: '1px solid var(--border-subtle)', background: '#fafbfc' }}>
-                <h4 style={{ fontWeight: 700, marginBottom: '0.5rem' }}>Payment Receipt Verifications</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--color-secondary)', marginBottom: '1.25rem' }}>
-                  Verify user transaction receipts to record monthly installments.
+              </div>
+              <div style={{ padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <p style={{ fontSize: '0.82rem', color: '#6b7280', margin: 0 }}>
+                  Verify user transaction receipts to confirm monthly installments.
                 </p>
-                <Link to="/admin/payments" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', padding: '0.5rem 1rem' }}>
-                  <span>Review {stats?.pendingPaymentsCount || 0} Payments</span>
-                  <ArrowRight size={14} />
+                <Link to="/admin/payments" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', backgroundColor: '#f0fdf4', color: '#16a34a', fontWeight: 700, fontSize: '0.78rem', padding: '0.45rem 0.85rem', borderRadius: '0.75rem', textDecoration: 'none', whiteSpace: 'nowrap', border: '1px solid #bbf7d0', marginLeft: '1rem', flexShrink: 0 }}>
+                  <span>Review</span><ArrowRight size={13} />
                 </Link>
               </div>
-
-              <div className="card-premium" style={{ border: '1px solid var(--border-subtle)', background: '#fafbfc' }}>
-                <h4 style={{ fontWeight: 700, marginBottom: '0.5rem' }}>Chit Pool Creator</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--color-secondary)', marginBottom: '1.25rem' }}>
-                  Set up new chit groups, edit rules, and configure launch properties.
-                </p>
-                <Link to="/admin/chits" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', padding: '0.5rem 1rem' }}>
-                  <span>Manage Groups</span>
-                  <ArrowRight size={14} />
-                </Link>
-              </div>
-              
-              {user.role === 'superadmin' && (
-                <div className="card-premium" style={{ border: '1px solid var(--border-subtle)', background: '#fafbfc' }}>
-                  <h4 style={{ fontWeight: 700, marginBottom: '0.5rem' }}>Employee Management</h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--color-secondary)', marginBottom: '1.25rem' }}>
-                    Create staff accounts and assign chits to them.
-                  </p>
-                  <Link to="/admin/employees" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', padding: '0.5rem 1rem' }}>
-                    <span>Manage Staff</span>
-                    <ArrowRight size={14} />
-                  </Link>
-                </div>
-              )}
             </div>
+
+            {/* Chit Management */}
+            <div style={{ backgroundColor: '#fff', borderRadius: '1.25rem', border: '1px solid #f3f4f6', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', overflow: 'hidden' }}>
+              <div style={{ background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 60%, #3b82f6 100%)', padding: '1.1rem 1.25rem', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: '-15px', right: '-15px', width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.07)' }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                    <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Briefcase size={18} color="#fff" />
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff', margin: 0 }}>Chit Pool Management</h3>
+                      <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)' }}>{stats?.totalChits || 0} total · {stats?.activeChits || 0} active</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <p style={{ fontSize: '0.82rem', color: '#6b7280', margin: 0 }}>
+                  Create new chit groups, manage enrollments, and configure settings.
+                </p>
+                <Link to="/admin/chits" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', backgroundColor: '#eff6ff', color: '#2563eb', fontWeight: 700, fontSize: '0.78rem', padding: '0.45rem 0.85rem', borderRadius: '0.75rem', textDecoration: 'none', whiteSpace: 'nowrap', border: '1px solid #bfdbfe', marginLeft: '1rem', flexShrink: 0 }}>
+                  <span>Manage</span><ArrowRight size={13} />
+                </Link>
+              </div>
+            </div>
+
+            {/* Chit Approvals */}
+            <div style={{ backgroundColor: '#fff', borderRadius: '1.25rem', border: '1px solid #f3f4f6', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', overflow: 'hidden' }}>
+              <div style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 60%, #a78bfa 100%)', padding: '1.1rem 1.25rem', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: '-15px', right: '-15px', width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.07)' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                  <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <CheckCircle size={18} color="#fff" />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff', margin: 0 }}>Chit Enrollments</h3>
+                    <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)' }}>Approve member join requests</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <p style={{ fontSize: '0.82rem', color: '#6b7280', margin: 0 }}>
+                  Review and approve pending member enrollment requests for chit pools.
+                </p>
+                <Link to="/admin/chit-approvals" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', backgroundColor: '#f5f3ff', color: '#7c3aed', fontWeight: 700, fontSize: '0.78rem', padding: '0.45rem 0.85rem', borderRadius: '0.75rem', textDecoration: 'none', whiteSpace: 'nowrap', border: '1px solid #ddd6fe', marginLeft: '1rem', flexShrink: 0 }}>
+                  <span>Review</span><ArrowRight size={13} />
+                </Link>
+              </div>
+            </div>
+
+            {/* Superadmin-only cards */}
+            {isSuperAdmin && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                {/* User Approvals */}
+                <div style={{ backgroundColor: '#fff', borderRadius: '1.25rem', border: '1px solid #f3f4f6', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', overflow: 'hidden' }}>
+                  <div style={{ background: 'linear-gradient(135deg, #ea580c, #f97316)', padding: '0.85rem 1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Users size={15} color="#fff" />
+                      </div>
+                      <div>
+                        <h4 style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff', margin: 0 }}>User Approvals</h4>
+                        <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.75)' }}>{stats?.pendingApprovals || 0} pending</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ padding: '0.75rem 1rem' }}>
+                    <Link to="/admin/users" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#ea580c', fontWeight: 700, fontSize: '0.78rem', textDecoration: 'none' }}>
+                      <span>Review KYC</span><ArrowRight size={13} />
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Employee Management */}
+                <div style={{ backgroundColor: '#fff', borderRadius: '1.25rem', border: '1px solid #f3f4f6', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', overflow: 'hidden' }}>
+                  <div style={{ background: 'linear-gradient(135deg, #0f766e, #14b8a6)', padding: '0.85rem 1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <TrendingUp size={15} color="#fff" />
+                      </div>
+                      <div>
+                        <h4 style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff', margin: 0 }}>Staff Team</h4>
+                        <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.75)' }}>Manage employees</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ padding: '0.75rem 1rem' }}>
+                    <Link to="/admin/employees" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#0f766e', fontWeight: 700, fontSize: '0.78rem', textDecoration: 'none' }}>
+                      <span>Manage Staff</span><ArrowRight size={13} />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+
           </div>
-        </ScrollAnimationWrapper>
+
+          {/* Right: Quick Stats + Recent Info */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
+            {/* Platform Health */}
+            <div style={{ backgroundColor: '#fff', borderRadius: '1.25rem', border: '1px solid #f3f4f6', padding: '1.25rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1f2937', margin: '0 0 1rem 0' }}>Platform Health</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                {[
+                  { label: 'Total Chits', value: stats?.totalChits || 0, color: '#16a34a', pct: Math.min(((stats?.totalChits || 0) / 20) * 100, 100) },
+                  { label: 'Active Chits', value: stats?.activeChits || 0, color: '#2563eb', pct: stats?.totalChits ? Math.round(((stats?.activeChits || 0) / stats.totalChits) * 100) : 0 },
+                  { label: 'Pending Payments', value: stats?.pendingPaymentsCount || 0, color: '#f59e0b', pct: Math.min(((stats?.pendingPaymentsCount || 0) / 10) * 100, 100) },
+                ].map((item, idx) => (
+                  <div key={idx}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 500 }}>{item.label}</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: item.color }}>{item.value}</span>
+                    </div>
+                    <div style={{ height: '5px', backgroundColor: '#f3f4f6', borderRadius: '1rem', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${item.pct}%`, backgroundColor: item.color, borderRadius: '1rem', transition: 'width 0.5s ease' }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div style={{ backgroundColor: '#fff', borderRadius: '1.25rem', border: '1px solid #f3f4f6', padding: '1.25rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1f2937', margin: '0 0 1rem 0' }}>Quick Actions</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {[
+                  { label: 'System Records', sub: 'View all chit ledgers', path: '/admin/records', color: '#16a34a', bg: '#f0fdf4' },
+                  { label: 'Verify Payments', sub: `${stats?.pendingPaymentsCount || 0} awaiting`, path: '/admin/payments', color: '#2563eb', bg: '#eff6ff' },
+                  { label: 'Manage Chits', sub: 'Create & configure', path: '/admin/chits', color: '#7c3aed', bg: '#f5f3ff' },
+                ].map((item, idx) => (
+                  <Link key={idx} to={item.path} style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '0.65rem 0.85rem', borderRadius: '0.75rem',
+                    backgroundColor: item.bg, textDecoration: 'none',
+                    border: `1px solid ${item.color}20`
+                  }}>
+                    <div>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1f2937', display: 'block' }}>{item.label}</span>
+                      <span style={{ fontSize: '0.68rem', color: '#9ca3af' }}>{item.sub}</span>
+                    </div>
+                    <ChevronRight size={15} color={item.color} />
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Revenue Summary */}
+            <div style={{ backgroundColor: '#fff', borderRadius: '1.25rem', border: '1px solid #f3f4f6', padding: '1.25rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1f2937', margin: '0 0 0.75rem 0' }}>Revenue Summary</h4>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '0.25rem' }}>
+                <span style={{ fontSize: '1.6rem', fontWeight: 800, color: '#16a34a', lineHeight: 1 }}>₹{((stats?.totalRevenue || 0) / 1000).toFixed(1)}K</span>
+                <span style={{ fontSize: '0.72rem', color: '#6b7280', marginBottom: '0.2rem' }}>total collected</span>
+              </div>
+              <div style={{ height: '6px', backgroundColor: '#f3f4f6', borderRadius: '1rem', overflow: 'hidden', marginBottom: '0.5rem' }}>
+                <div style={{ height: '100%', width: `${Math.min(((stats?.totalRevenue || 0) / 500000) * 100, 100)}%`, background: 'linear-gradient(90deg, #16a34a, #22c55e)', borderRadius: '1rem' }} />
+              </div>
+              <span style={{ fontSize: '0.68rem', color: '#9ca3af' }}>across {stats?.totalChits || 0} chit pools</span>
+            </div>
+
+          </div>
+        </div>
+
+        <style>{`
+          .dashboard-greeting {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--color-primary-green);
+            line-height: 1.2;
+          }
+          .stat-label {
+            font-size: 0.65rem;
+            color: #6b7280;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 0.3rem;
+            white-space: nowrap;
+          }
+          .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: block;
+          }
+          @media (max-width: 768px) {
+            .dashboard-greeting { font-size: 1.5rem; }
+            .dashboard-grid-layout {
+              grid-template-columns: 1fr !important;
+              gap: 1.25rem !important;
+            }
+            .stat-label { font-size: 0.58rem; }
+            .stat-value { font-size: 1.05rem; }
+          }
+        `}</style>
       </div>
     );
   }
