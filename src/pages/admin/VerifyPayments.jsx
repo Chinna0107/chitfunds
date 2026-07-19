@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import ScrollAnimationWrapper from '../../components/ScrollAnimationWrapper';
-import { CheckSquare, Hourglass, ShieldCheck, Check, X, Eye, AlertCircle } from 'lucide-react';
+import { CheckSquare, Hourglass, ShieldCheck, Check, X, Eye, AlertCircle, Edit3 } from 'lucide-react';
 
 const VerifyPayments = () => {
   const { token, API_URL } = useAuth();
@@ -81,6 +81,32 @@ const VerifyPayments = () => {
       ...prev,
       [paymentId]: value
     }));
+  };
+
+  const handleAllowEdit = async (paymentId) => {
+    setMessage({ text: '', type: '' });
+    setActionLoadingId(paymentId);
+    try {
+      const response = await fetch(`${API_URL}/admin/payments/${paymentId}/allow-edit`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setMessage({ text: 'Edit access granted. User will see an edit option in their payment history.', type: 'success' });
+        await fetchPendingPayments();
+      } else {
+        setMessage({ text: data.message || 'Failed to grant edit access.', type: 'danger' });
+      }
+    } catch (error) {
+      console.error('Error granting edit access:', error);
+      setMessage({ text: 'Server error granting edit access.', type: 'danger' });
+    } finally {
+      setActionLoadingId(null);
+    }
   };
 
   const getFullImgUrl = (path) => {
@@ -225,7 +251,7 @@ const VerifyPayments = () => {
                       </button>
                     </div>
                   ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
                       <button
                         onClick={() => setShowRejectFormId(payment.id)}
                         disabled={actionLoadingId === payment.id}
@@ -237,11 +263,31 @@ const VerifyPayments = () => {
                           gap: '0.25rem',
                           borderColor: 'var(--color-danger)',
                           color: 'var(--color-danger)',
-                          padding: '0.6rem'
+                          padding: '0.6rem',
+                          fontSize: '0.8rem'
                         }}
                       >
-                        <X size={16} />
+                        <X size={14} />
                         <span>Reject</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleAllowEdit(payment.id)}
+                        disabled={actionLoadingId === payment.id}
+                        className="btn-secondary"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.25rem',
+                          borderColor: 'var(--color-info, #3b82f6)',
+                          color: 'var(--color-info, #3b82f6)',
+                          padding: '0.6rem',
+                          fontSize: '0.8rem'
+                        }}
+                      >
+                        <Edit3 size={14} />
+                        <span>Allow Edit</span>
                       </button>
 
                       <button
@@ -256,10 +302,11 @@ const VerifyPayments = () => {
                           background: 'var(--color-success)',
                           borderColor: '#059669',
                           color: '#fff',
-                          padding: '0.6rem'
+                          padding: '0.6rem',
+                          fontSize: '0.8rem'
                         }}
                       >
-                        <Check size={16} />
+                        <Check size={14} />
                         <span>Approve</span>
                       </button>
                     </div>

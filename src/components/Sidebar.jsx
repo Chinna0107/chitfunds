@@ -21,7 +21,17 @@ const Sidebar = () => {
   const adminLinks = [
     { to: '/', label: 'Overview', icon: <LayoutDashboard size={20} /> },
     { to: '/admin/users', label: 'User Approvals', icon: <UserCheck size={20} /> },
+    { to: '/admin/employees', label: 'Employee Management', icon: <User size={20} /> },
     { to: '/admin/chits', label: 'Create Chits', icon: <PlusSquare size={20} /> },
+    { to: '/admin/chit-approvals', label: 'Chit Approvals', icon: <Briefcase size={20} /> },
+    { to: '/admin/payments', label: 'Verify Payments', icon: <CheckSquare size={20} /> },
+    { to: '/admin/records', label: 'System Records', icon: <FolderOpen size={20} /> },
+    { to: '/profile', label: 'My Profile', icon: <User size={20} /> },
+  ];
+
+  const staffLinks = [
+    { to: '/', label: 'Overview', icon: <LayoutDashboard size={20} /> },
+    { to: '/admin/chits', label: 'Manage Chits', icon: <PlusSquare size={20} /> },
     { to: '/admin/chit-approvals', label: 'Chit Approvals', icon: <Briefcase size={20} /> },
     { to: '/admin/payments', label: 'Verify Payments', icon: <CheckSquare size={20} /> },
     { to: '/admin/records', label: 'System Records', icon: <FolderOpen size={20} /> },
@@ -36,7 +46,10 @@ const Sidebar = () => {
     { to: '/profile', label: 'My Profile', icon: <User size={20} /> },
   ];
 
-  const links = user.role === 'superadmin' ? adminLinks : userLinks;
+  const links = user.role === 'superadmin' ? adminLinks : (user.role === 'employee' ? staffLinks : userLinks);
+  let panelTitle = 'Member Panel';
+  if (user.role === 'superadmin') panelTitle = 'Admin Portal';
+  if (user.role === 'employee') panelTitle = 'Staff Portal';
 
   return (
     <aside className="glass-panel sidebar-container" style={{
@@ -52,7 +65,7 @@ const Sidebar = () => {
     }}>
       <div style={{ padding: '0 0.75rem 1.5rem 0.75rem', borderBottom: '1px solid var(--border-subtle)' }}>
         <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-secondary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Navigation</p>
-        <p style={{ fontSize: '1rem', fontWeight: 700, marginTop: '0.25rem' }}>{user.role === 'superadmin' ? 'Admin Portal' : 'Member Panel'}</p>
+        <p style={{ fontSize: '1rem', fontWeight: 700, marginTop: '0.25rem' }}>{panelTitle}</p>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem' }}>

@@ -27,6 +27,14 @@ const BottomNav = () => {
     { to: '/admin/records', label: 'Records', icon: <FolderOpen size={22} /> },
   ];
 
+  const staffLinks = [
+    { to: '/', label: 'Home', icon: <Home size={22} /> },
+    { to: '/admin/chits', label: 'Manage Chits', icon: <Plus size={24} color="#fff" />, isSpecial: true },
+    { to: '/admin/chit-approvals', label: 'Approvals', icon: <Briefcase size={22} /> },
+    { to: '/admin/payments', label: 'Verify', icon: <CheckSquare size={22} /> },
+    { to: '/admin/records', label: 'Records', icon: <FolderOpen size={22} /> },
+  ];
+
   const userLinks = [
     { to: '/', label: 'Home', icon: <Home size={22} /> },
     { to: '/my-chits', label: 'My Chits', icon: <ClipboardList size={22} /> },
@@ -35,7 +43,7 @@ const BottomNav = () => {
     { to: '/profile', label: 'Profile', icon: <User size={22} /> },
   ];
 
-  const links = user.role === 'superadmin' ? adminLinks : userLinks;
+  const links = user.role === 'superadmin' ? adminLinks : (user.role === 'employee' ? staffLinks : userLinks);
 
   return (
     <nav className="glass-panel bottom-nav-container" style={{

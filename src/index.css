@@ -269,6 +269,11 @@ button {
   background: rgba(59, 130, 246, 0.15);
   color: var(--color-info);
 }
+.badge-edit-required {
+  background: rgba(245, 158, 11, 0.18);
+  color: #b45309;
+  border: 1px solid #f59e0b;
+}
 
 .card-premium {
   background: var(--bg-card);

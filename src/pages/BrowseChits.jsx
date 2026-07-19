@@ -173,6 +173,15 @@ const BrowseChits = () => {
                       </div>
                     </div>
 
+                    <div style={{ backgroundColor: 'var(--bg-main)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem', fontSize: '0.8rem' }}>
+                      <p style={{ color: 'var(--color-secondary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span>Managed By:</span>
+                        <strong style={{ color: 'var(--color-primary-green)' }}>
+                          {chit.creator ? `${chit.creator.name} (${chit.creator.role})` : 'Superadmin'}
+                        </strong>
+                      </p>
+                    </div>
+
                     {chit.termsAndConditions && (
                       <div style={{ backgroundColor: 'var(--bg-main)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem', fontSize: '0.8rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600, marginBottom: '0.25rem' }}>

@@ -17,7 +17,9 @@ import {
   Check,
   ChevronRight,
   ListFilter,
-  Bell
+  Bell,
+  Gavel,
+  Star
 } from 'lucide-react';
 
 // Megaphone SVG for Announcements
@@ -45,7 +47,7 @@ const Dashboard = () => {
 
     const fetchDashboardData = async () => {
       try {
-        if (user.role === 'superadmin') {
+        if (user.role === 'superadmin' || user.role === 'employee') {
           const response = await fetch(`${API_URL}/admin/dashboard-stats`, {
             headers: { Authorization: `Bearer ${token}` }
           });
@@ -104,14 +106,14 @@ const Dashboard = () => {
     return <div style={{ padding: '3rem', textAlign: 'center', fontWeight: 600, color: 'var(--color-primary-green)' }}>Loading dashboard data...</div>;
   }
 
-  // ================= ADMIN VIEW =================
-  if (user.role === 'superadmin') {
+  // ================= ADMIN / STAFF VIEW =================
+  if (user.role === 'superadmin' || user.role === 'employee') {
     return (
       <div style={{ padding: '1rem', width: '100%' }}>
         <ScrollAnimationWrapper>
           <div style={{ marginBottom: '2rem' }}>
             <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--color-primary-green)' }}>
-              Welcome back, <span style={{ color: 'var(--accent-yellow-dark)' }}>Admin</span>
+              Welcome back, <span style={{ color: 'var(--accent-yellow-dark)' }}>{user.role === 'superadmin' ? 'Admin' : 'Staff'}</span>
             </h1>
             <p style={{ color: 'var(--color-secondary)', fontSize: '1rem' }}>
               Here is your overview of Chit Fund platform activities.
@@ -177,20 +179,22 @@ const Dashboard = () => {
           <div className="glass-panel card-premium" style={{ padding: '2rem', borderRadius: 'var(--radius-lg)', backgroundColor: '#fff', border: '1px solid rgba(30, 107, 62, 0.08)' }}>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-primary-green)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <TrendingUp size={22} color="var(--color-primary-green)" />
-              <span>Admin Action Items</span>
+              <span>{user.role === 'superadmin' ? 'Admin Action Items' : 'Staff Action Items'}</span>
             </h2>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
-              <div className="card-premium" style={{ border: '1px solid var(--border-subtle)', background: '#fafbfc' }}>
-                <h4 style={{ fontWeight: 700, marginBottom: '0.5rem' }}>User Registration Approvals</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--color-secondary)', marginBottom: '1.25rem' }}>
-                  Verify submitted Aadhar and PAN photos to activate new user accounts.
-                </p>
-                <Link to="/admin/users" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', padding: '0.5rem 1rem' }}>
-                  <span>Review {stats?.pendingApprovals || 0} Requests</span>
-                  <ArrowRight size={14} />
-                </Link>
-              </div>
+              {user.role === 'superadmin' && (
+                <div className="card-premium" style={{ border: '1px solid var(--border-subtle)', background: '#fafbfc' }}>
+                  <h4 style={{ fontWeight: 700, marginBottom: '0.5rem' }}>User Registration Approvals</h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--color-secondary)', marginBottom: '1.25rem' }}>
+                    Verify submitted Aadhar and PAN photos to activate new user accounts.
+                  </p>
+                  <Link to="/admin/users" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', padding: '0.5rem 1rem' }}>
+                    <span>Review {stats?.pendingApprovals || 0} Requests</span>
+                    <ArrowRight size={14} />
+                  </Link>
+                </div>
+              )}
 
               <div className="card-premium" style={{ border: '1px solid var(--border-subtle)', background: '#fafbfc' }}>
                 <h4 style={{ fontWeight: 700, marginBottom: '0.5rem' }}>Payment Receipt Verifications</h4>
@@ -213,6 +217,19 @@ const Dashboard = () => {
                   <ArrowRight size={14} />
                 </Link>
               </div>
+              
+              {user.role === 'superadmin' && (
+                <div className="card-premium" style={{ border: '1px solid var(--border-subtle)', background: '#fafbfc' }}>
+                  <h4 style={{ fontWeight: 700, marginBottom: '0.5rem' }}>Employee Management</h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--color-secondary)', marginBottom: '1.25rem' }}>
+                    Create staff accounts and assign chits to them.
+                  </p>
+                  <Link to="/admin/employees" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', padding: '0.5rem 1rem' }}>
+                    <span>Manage Staff</span>
+                    <ArrowRight size={14} />
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </ScrollAnimationWrapper>
@@ -298,276 +315,239 @@ const Dashboard = () => {
   const otherChits = approvedChits.filter(c => c.id !== primaryChit?.id);
 
   return (
-    <div style={{ padding: '1rem', width: '100%' }}>
+    <div style={{ padding: '1rem', width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
       
-      {/* Hello Ramesh Section */}
+      {/* Hello Section */}
       <ScrollAnimationWrapper>
-        <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--color-primary-green)' }}>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h1 className="dashboard-greeting">
             Hello, {user.name} 👋
           </h1>
-          <p style={{ color: 'var(--color-secondary)', fontSize: '1rem', marginTop: '0.25rem' }}>
+          <p style={{ color: 'var(--color-secondary)', fontSize: '0.95rem', marginTop: '0.25rem' }}>
             Welcome back to your dashboard
           </p>
         </div>
       </ScrollAnimationWrapper>
 
-      {/* Stats Summary Card Row (Ramesh style) */}
-      <div className="stats-grid-layout" style={{ display: 'grid', gap: '1.25rem', marginBottom: '2rem' }}>
-        <div className="card-premium" style={{ display: 'flex', flexDirection: 'column', padding: '1.25rem', backgroundColor: '#fff', border: '1px solid rgba(30, 107, 62, 0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--color-secondary)', fontWeight: 600 }}>Active Chits</span>
-            <div style={{ padding: '0.4rem', background: '#e8f5e9', borderRadius: '50%', color: '#166534' }}>
-              <Briefcase size={18} />
-            </div>
+      {/* Stats Summary Card Row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#fff', padding: '1rem 0.25rem', marginBottom: '1.5rem', borderRadius: '1.25rem', border: '1px solid rgba(30, 107, 62, 0.08)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+        
+        <div style={{ flex: 1, textAlign: 'center', borderRight: '1px solid #f3f4f6', padding: '0 0.25rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.35rem', color: '#22c55e' }}>
+            <Briefcase size={20} />
           </div>
-          <span style={{ fontSize: '1.75rem', fontWeight: 800, color: '#166534' }}>{activeChits.length}</span>
+          <span className="stat-label">Active Chits</span>
+          <span className="stat-value" style={{ color: '#16a34a' }}>{activeChits.length}</span>
         </div>
 
-        <div className="card-premium" style={{ display: 'flex', flexDirection: 'column', padding: '1.25rem', backgroundColor: '#fff', border: '1px solid rgba(30, 107, 62, 0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--color-secondary)', fontWeight: 600 }}>Completed Chits</span>
-            <div style={{ padding: '0.4rem', background: '#e8f5e9', borderRadius: '50%', color: '#166534' }}>
-              <Check size={18} />
-            </div>
+        <div style={{ flex: 1, textAlign: 'center', borderRight: '1px solid #f3f4f6', padding: '0 0.25rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.35rem', color: '#16a34a' }}>
+            <CheckCircle size={20} />
           </div>
-          <span style={{ fontSize: '1.75rem', fontWeight: 800, color: '#166534' }}>{completedCount}</span>
+          <span className="stat-label">Completed Chits</span>
+          <span className="stat-value" style={{ color: '#374151' }}>{completedCount}</span>
         </div>
 
-        <div className="card-premium" style={{ display: 'flex', flexDirection: 'column', padding: '1.25rem', backgroundColor: '#fff', border: '1px solid rgba(30, 107, 62, 0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--color-secondary)', fontWeight: 600 }}>Pending Approval</span>
-            <div style={{ padding: '0.4rem', background: '#fefbeb', borderRadius: '50%', color: '#ca8a04' }}>
-              <Clock size={18} />
-            </div>
+        <div style={{ flex: 1, textAlign: 'center', borderRight: '1px solid #f3f4f6', padding: '0 0.25rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.35rem', color: '#f59e0b' }}>
+            <Clock size={20} />
           </div>
-          <span style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ca8a04' }}>{pendingJoinCount}</span>
+          <span className="stat-label">Pending Approval</span>
+          <span className="stat-value" style={{ color: '#f59e0b' }}>{pendingJoinCount}</span>
         </div>
 
-        <div className="card-premium" style={{ display: 'flex', flexDirection: 'column', padding: '1.25rem', backgroundColor: '#fff', border: '1px solid rgba(30, 107, 62, 0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--color-secondary)', fontWeight: 600 }}>Total Enrolled</span>
-            <div style={{ padding: '0.4rem', background: '#e8f5e9', borderRadius: '50%', color: '#166534' }}>
-              <Users size={18} />
-            </div>
+        <div style={{ flex: 1, textAlign: 'center', padding: '0 0.25rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.35rem', color: '#10b981' }}>
+            <Users size={20} />
           </div>
-          <span style={{ fontSize: '1.75rem', fontWeight: 800, color: '#166534' }}>{approvedChits.length + pendingJoinCount}</span>
+          <span className="stat-label">Total Enrolled</span>
+          <span className="stat-value" style={{ color: '#374151' }}>{approvedChits.length + pendingJoinCount}</span>
         </div>
       </div>
 
-      {/* Main Grid: Columns for Laptop, stacked on Mobile */}
-      <div className="dashboard-grid-layout" style={{ display: 'grid', gridTemplateColumns: '1.75fr 1fr', gap: '2rem' }}>
+      {/* Main Grid */}
+      <div className="dashboard-grid-layout" style={{ display: 'grid', gridTemplateColumns: '1.75fr 1fr', gap: '1.5rem' }}>
         
-        {/* Left Side: Chit details */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        {/* Left Side: Chit Details */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           
           {primaryChit ? (
-            <div className="card-premium" style={{ backgroundColor: '#fff', border: '1px solid rgba(30, 107, 62, 0.08)', padding: '2rem' }}>
-              {/* Header Title of Active Chit */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div style={{ backgroundColor: '#fff', borderRadius: '1.25rem', border: '1px solid #f3f4f6', padding: '1.25rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+              
+              {/* Chit Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <div style={{
-                    width: '42px',
-                    height: '42px',
-                    borderRadius: '50%',
-                    backgroundColor: 'var(--color-primary-green-light)',
-                    color: 'var(--color-primary-green)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
+                    width: '44px', height: '44px', borderRadius: '50%',
+                    backgroundColor: '#16a34a', color: '#fff',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 4px 10px rgba(22, 163, 74, 0.3)', flexShrink: 0
                   }}>
-                    <Briefcase size={22} />
+                    <Briefcase size={20} />
                   </div>
                   <div>
-                    <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-primary-green)', lineHeight: 1.2 }}>{primaryChit.name}</h3>
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.15rem' }}>
-                      <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>ID: {chitIdText}</span>
-                      <span className="badge badge-active" style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem', backgroundColor: '#e8f5e9', color: '#166534' }}>Active</span>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#1f2937', lineHeight: 1.2, margin: 0 }}>{primaryChit.name}</h3>
+                    <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', marginTop: '0.2rem', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '0.68rem', color: '#9ca3af' }}>ID: {chitIdText}</span>
+                      <span style={{ fontSize: '0.65rem', padding: '0.1rem 0.5rem', backgroundColor: '#dcfce7', color: '#166534', borderRadius: '1rem', fontWeight: 600 }}>Active</span>
                     </div>
                   </div>
                 </div>
-
                 <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#6b7280', display: 'block' }}>Monthly EMI</span>
-                  <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-primary-green)' }}>₹{monthlyEmi.toLocaleString()}</span>
+                  <span style={{ fontSize: '0.7rem', color: '#6b7280', display: 'block', marginBottom: '0.15rem' }}>Monthly EMI</span>
+                  <span style={{ fontSize: '1.15rem', fontWeight: 700, color: '#16a34a' }}>₹ {monthlyEmi.toLocaleString()}</span>
                 </div>
               </div>
 
-              {/* Grid: Due / Paid / Remaining Amounts */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr 1fr',
-                gap: '1rem',
-                padding: '1.25rem',
-                backgroundColor: '#fafbfc',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--border-subtle)',
-                marginBottom: '1.5rem'
-              }}>
-                <div>
-                  <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600 }}>Due Amount</span>
-                  <p style={{ fontSize: '1.15rem', fontWeight: 800, color: dueAmount > 0 ? '#dc2626' : '#166534', marginTop: '0.25rem' }}>
-                    ₹{dueAmount.toLocaleString()}
-                  </p>
+              {/* Due / Paid / Remaining */}
+              <div className="chit-amounts-grid">
+                <div className="chit-amount-col" style={{ borderRight: '1px solid #f3f4f6' }}>
+                  <span className="amount-label">Due Amount</span>
+                  <p className="amount-value" style={{ color: '#ef4444' }}>₹ {dueAmount.toLocaleString()}</p>
                 </div>
-                <div>
-                  <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600 }}>Paid Amount</span>
-                  <p style={{ fontSize: '1.15rem', fontWeight: 800, color: '#166534', marginTop: '0.25rem' }}>
-                    ₹{paidAmount.toLocaleString()}
-                  </p>
+                <div className="chit-amount-col" style={{ borderRight: '1px solid #f3f4f6' }}>
+                  <span className="amount-label">Paid Amount</span>
+                  <p className="amount-value" style={{ color: '#16a34a' }}>₹ {paidAmount.toLocaleString()}</p>
                 </div>
-                <div>
-                  <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600 }}>Remaining Amount</span>
-                  <p style={{ fontSize: '1.15rem', fontWeight: 800, color: '#d97706', marginTop: '0.25rem' }}>
-                    ₹{remainingAmount.toLocaleString()}
-                  </p>
+                <div className="chit-amount-col">
+                  <span className="amount-label">Remaining Amount</span>
+                  <p className="amount-value" style={{ color: '#f59e0b' }}>₹ {remainingAmount.toLocaleString()}</p>
                 </div>
               </div>
 
-              {/* Progress/Remaining Months */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.25fr', gap: '1rem', marginBottom: '1.5rem', fontSize: '0.85rem' }}>
-                <div>
-                  <span style={{ color: '#6b7280', display: 'block' }}>Remaining Months</span>
-                  <strong style={{ fontSize: '1.05rem', color: 'var(--color-primary)' }}>{remainingMonths}</strong>
+              {/* Months Row */}
+              <div className="chit-months-grid">
+                <div className="chit-month-col" style={{ borderRight: '1px solid #f3f4f6' }}>
+                  <span className="month-label">Remaining Months</span>
+                  <strong className="month-value">{remainingMonths}</strong>
                 </div>
-                <div>
-                  <span style={{ color: '#6b7280', display: 'block' }}>Current Month</span>
-                  <strong style={{ fontSize: '1.05rem', color: 'var(--color-primary)' }}>{currentMonthProgressText}</strong>
+                <div className="chit-month-col" style={{ borderRight: '1px solid #f3f4f6' }}>
+                  <span className="month-label">Current Month</span>
+                  <strong className="month-value">{currentMonthProgressText}</strong>
                 </div>
-                <div>
-                  <span style={{ color: '#6b7280', display: 'block' }}>Next Due Date</span>
-                  <strong style={{ fontSize: '1.05rem', color: 'var(--color-primary)' }}>5th of Current Month</strong>
+                <div className="chit-month-col">
+                  <span className="month-label">Next Due Date</span>
+                  <strong className="month-value" style={{ fontSize: '0.85rem' }}>5th of Month</strong>
                 </div>
               </div>
 
-              {/* Table List of Details */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', borderTop: '1px solid #f3f4f6', paddingTop: '1.25rem', marginBottom: '1.75rem', fontSize: '0.9rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#4b5563' }}>
-                    <Calendar size={16} />
+              {/* Detail Rows */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', borderTop: '1px solid #f3f4f6', paddingTop: '1rem', marginBottom: '1.25rem', fontSize: '0.85rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#4b5563' }}>
+                    <Calendar size={16} color="#22c55e" />
                     <span>Chit Start Date</span>
                   </div>
-                  <strong style={{ color: '#111827' }}>{startDateText}</strong>
+                  <strong style={{ color: '#111827', fontWeight: 600, fontSize: '0.82rem' }}>{startDateText}</strong>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#4b5563' }}>
-                    <Calendar size={16} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#4b5563' }}>
+                    <Calendar size={16} color="#22c55e" />
                     <span>Chit End Date</span>
                   </div>
-                  <strong style={{ color: '#111827' }}>{endDateText}</strong>
+                  <strong style={{ color: '#111827', fontWeight: 600, fontSize: '0.82rem' }}>{endDateText}</strong>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: '#4b5563' }}>Auction Status</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>Next Auction: {getUpcomingAuctionDate()}</span>
-                    <span className="badge" style={{ backgroundColor: '#fef3c7', color: '#ca8a04', fontSize: '0.7rem', padding: '0.15rem 0.5rem' }}>Upcoming</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderTop: '1px solid #f3f4f6', borderBottom: '1px solid #f3f4f6' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#4b5563' }}>
+                    <Gavel size={16} color="#22c55e" />
+                    <span>Auction Status</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <span style={{ fontSize: '0.68rem', color: '#6b7280', textAlign: 'right' }}>Next on {getUpcomingAuctionDate()}</span>
+                    <span style={{ backgroundColor: '#fffbeb', color: '#d97706', fontSize: '0.65rem', padding: '0.15rem 0.5rem', border: '1px solid #fde68a', borderRadius: '1rem', whiteSpace: 'nowrap' }}>Upcoming</span>
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: '#4b5563' }}>Payment Status</span>
-                  <span className={`badge ${paymentStatusClass}`} style={{ fontSize: '0.75rem', padding: '0.15rem 0.5rem' }}>{paymentStatus}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#4b5563' }}>
+                    <CheckCircle size={16} color="#22c55e" />
+                    <span>Payment Status</span>
+                  </div>
+                  <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.75rem', borderRadius: '1rem', border: '1px solid #bbf7d0', backgroundColor: '#f0fdf4', color: '#16a34a', fontWeight: 600 }}>{paymentStatus}</span>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #f3f4f6', paddingTop: '0.75rem', marginTop: '0.25rem' }}>
-                  <span style={{ color: '#4b5563', fontWeight: 600 }}>Installment History</span>
-                  <Link to="/my-chits" style={{ color: 'var(--color-primary-green)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.15rem', textDecoration: 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f3f4f6', paddingTop: '0.85rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#4b5563' }}>
+                    <ListFilter size={16} color="#22c55e" />
+                    <span>Installment History</span>
+                  </div>
+                  <Link to="/my-chits" style={{ color: '#9ca3af', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.2rem', textDecoration: 'none' }}>
                     <span>View Details</span>
-                    <ChevronRight size={16} />
+                    <ChevronRight size={13} />
                   </Link>
                 </div>
               </div>
 
-              {/* View Chit Details Button */}
+              {/* Button */}
               <button
                 onClick={() => navigate('/my-chits')}
-                className="btn-secondary"
                 style={{
-                  width: '100%',
-                  height: '46px',
-                  borderRadius: 'var(--radius-full)',
-                  borderColor: 'var(--color-primary-green)',
-                  color: 'var(--color-primary-green)',
-                  fontWeight: 700,
-                  fontSize: '0.95rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem'
+                  width: '100%', height: '44px', borderRadius: '1.5rem',
+                  backgroundColor: '#fff', border: '1.5px solid #22c55e',
+                  color: '#16a34a', fontWeight: 600, fontSize: '0.88rem',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', transition: 'background-color 0.2s'
                 }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#fff'}
               >
-                <span>View Chit Details</span>
+                View Chit Details
               </button>
             </div>
           ) : (
-            <div className="card-premium" style={{ backgroundColor: '#fff', border: '1px dashed #cbe2d6', padding: '3.5rem', textAlign: 'center' }}>
-              <Briefcase size={48} color="var(--color-secondary)" style={{ margin: '0 auto 1.25rem auto' }} />
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-primary)' }}>No Active Chits</h3>
-              <p style={{ color: 'var(--color-secondary)', fontSize: '0.9rem', margin: '0.25rem 0 1.75rem 0', maxWidth: '320px', marginLeft: 'auto', marginRight: 'auto' }}>
-                You are not currently enrolled as an approved member in any active chit schemes.
+            <div style={{ backgroundColor: '#fff', borderRadius: '1.25rem', border: '1px dashed #cbe2d6', padding: '3rem', textAlign: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+              <Briefcase size={44} color="#9ca3af" style={{ margin: '0 auto 1rem auto' }} />
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#374151' }}>No Active Chits</h3>
+              <p style={{ color: '#6b7280', fontSize: '0.85rem', margin: '0.5rem 0 1.5rem 0' }}>
+                You are not enrolled in any active chit schemes yet.
               </p>
-              <button onClick={() => navigate('/chits')} className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', borderRadius: 'var(--radius-full)' }}>
+              <button onClick={() => navigate('/chits')} className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', borderRadius: '1.5rem' }}>
                 <span>Browse Available Schemes</span>
                 <ArrowRight size={16} />
               </button>
             </div>
           )}
 
-          {/* Other Active Chits Section */}
+          {/* Other Active Chits */}
           {otherChits.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-primary-green)' }}>Other Active Chits</h4>
-                <Link to="/my-chits" style={{ fontSize: '0.8rem', color: 'var(--color-primary-green)', fontWeight: 700, textDecoration: 'none' }}>View All</Link>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#1f2937', margin: 0 }}>Other Active Chits</h4>
+                <Link to="/my-chits" style={{ fontSize: '0.78rem', color: '#16a34a', fontWeight: 600, textDecoration: 'none' }}>View All</Link>
               </div>
-
-              {otherChits.map(chit => (
+              {otherChits.map((chit, idx) => (
                 <div
                   onClick={() => navigate('/my-chits')}
                   key={chit.id}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '1rem 1.25rem',
-                    backgroundColor: '#fff',
-                    border: '1px solid rgba(30, 107, 62, 0.06)',
-                    borderRadius: 'var(--radius-md)',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    boxShadow: 'var(--shadow-sm)'
-                  }}
                   className="other-chit-item"
+                  style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '0.85rem 1rem', backgroundColor: '#fff',
+                    border: '1px solid #f3f4f6', borderRadius: '1rem',
+                    cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+                  }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     <div style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                      backgroundColor: '#e8f5e9',
-                      color: '#166534',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
+                      width: '38px', height: '38px', borderRadius: '50%',
+                      backgroundColor: idx % 2 === 0 ? '#fef9c3' : '#dcfce7',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
                     }}>
-                      <Briefcase size={16} />
+                      {idx % 2 === 0 ? <Star size={18} color="#eab308" fill="#eab308" /> : <Briefcase size={18} color="#22c55e" />}
                     </div>
                     <div>
-                      <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-primary)' }}>{chit.name}</span>
-                      <span style={{ fontSize: '0.7rem', color: '#6b7280', display: 'block', marginTop: '0.1rem' }}>
-                        ID: CHIT{chit.id.slice(-4).toUpperCase()}
-                      </span>
+                      <span style={{ fontSize: '0.88rem', fontWeight: 600, color: '#1f2937', display: 'block' }}>{chit.name}</span>
+                      <span style={{ fontSize: '0.7rem', color: '#6b7280' }}>ID: CHIT{chit.id.slice(-4).toUpperCase()}</span>
                     </div>
                   </div>
-
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{ textAlign: 'right' }}>
-                      <span style={{ fontSize: '0.7rem', color: '#6b7280', display: 'block' }}>Monthly EMI</span>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-primary-green)' }}>₹{chit.monthlyContribution.toLocaleString()}</span>
+                      <span style={{ fontSize: '0.65rem', color: '#6b7280', display: 'block' }}>Monthly EMI</span>
+                      <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#1f2937' }}>₹ {chit.monthlyContribution.toLocaleString()}</span>
                     </div>
-                    <ChevronRight size={18} color="#9ca3af" />
+                    <ChevronRight size={16} color="#9ca3af" />
                   </div>
                 </div>
               ))}
@@ -577,102 +557,178 @@ const Dashboard = () => {
         </div>
 
         {/* Right Side: Notifications & Announcements */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          
-          {/* Notifications Card */}
-          <div className="card-premium" style={{ backgroundColor: '#fff', border: '1px solid rgba(30, 107, 62, 0.08)', padding: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-primary-green)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Bell size={18} />
-                <span>Notifications</span>
-              </h4>
-              <span style={{ fontSize: '0.75rem', color: 'var(--color-primary-green)', fontWeight: 700, cursor: 'pointer' }}>View All</span>
-            </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
+          {/* Notifications */}
+          <div style={{ backgroundColor: '#fff', borderRadius: '1.25rem', border: '1px solid #f3f4f6', padding: '1.25rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1f2937', margin: 0 }}>Notifications</h4>
+              <span style={{ fontSize: '0.72rem', color: '#16a34a', fontWeight: 600, cursor: 'pointer' }}>View All</span>
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {primaryChit && paymentStatus !== 'Paid' ? (
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#dc2626', marginTop: '6px', flexShrink: 0 }} />
+              {primaryChit && paymentStatus !== 'Paid' && (
+                <div style={{ display: 'flex', gap: '0.6rem' }}>
+                  <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#ef4444', marginTop: '5px', flexShrink: 0 }} />
                   <div>
-                    <p style={{ fontSize: '0.85rem', color: '#374151', lineHeight: 1.3 }}>
-                      Your EMI of <strong>₹{monthlyEmi.toLocaleString()}</strong> is due on the 5th of this month.
+                    <p style={{ fontSize: '0.78rem', color: '#374151', lineHeight: 1.5, margin: 0 }}>
+                      Your EMI of <strong>₹{monthlyEmi.toLocaleString()}</strong> is due on 5th of this month.
                     </p>
-                    <span style={{ fontSize: '0.7rem', color: '#9ca3af' }}>2m ago</span>
+                    <span style={{ fontSize: '0.68rem', color: '#9ca3af' }}>2m ago</span>
                   </div>
                 </div>
-              ) : null}
-
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ca8a04', marginTop: '6px', flexShrink: 0 }} />
+              )}
+              <div style={{ display: 'flex', gap: '0.6rem' }}>
+                <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#f59e0b', marginTop: '5px', flexShrink: 0 }} />
                 <div>
-                  <p style={{ fontSize: '0.85rem', color: '#374151', lineHeight: 1.3 }}>
-                    Auction is scheduled on <strong>25th of this month</strong>. Register your bid options online.
+                  <p style={{ fontSize: '0.78rem', color: '#374151', lineHeight: 1.5, margin: 0 }}>
+                    Auction scheduled on <strong>25th of this month</strong>.
                   </p>
-                  <span style={{ fontSize: '0.7rem', color: '#9ca3af' }}>1h ago</span>
+                  <span style={{ fontSize: '0.68rem', color: '#9ca3af' }}>1h ago</span>
                 </div>
               </div>
-
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#166534', marginTop: '6px', flexShrink: 0 }} />
+              <div style={{ display: 'flex', gap: '0.6rem' }}>
+                <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#22c55e', marginTop: '5px', flexShrink: 0 }} />
                 <div>
-                  <p style={{ fontSize: '0.85rem', color: '#374151', lineHeight: 1.3 }}>
-                    Superadmin verified your Aadhar & PAN registration profile details. KYC is complete.
+                  <p style={{ fontSize: '0.78rem', color: '#374151', lineHeight: 1.5, margin: 0 }}>
+                    KYC verification is complete.
                   </p>
-                  <span style={{ fontSize: '0.7rem', color: '#9ca3af' }}>1d ago</span>
+                  <span style={{ fontSize: '0.68rem', color: '#9ca3af' }}>1d ago</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Announcements Card */}
-          <div className="card-premium" style={{ backgroundColor: '#fff', border: '1px solid rgba(30, 107, 62, 0.08)', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-primary-green)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <ListFilter size={18} />
-                <span>Announcements</span>
-              </h4>
-              <span style={{ fontSize: '0.75rem', color: 'var(--color-primary-green)', fontWeight: 700, cursor: 'pointer' }}>View All</span>
+          {/* Announcements */}
+          <div style={{ backgroundColor: '#fff', borderRadius: '1.25rem', border: '1px solid #f3f4f6', padding: '1.25rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1f2937', margin: 0 }}>Announcements</h4>
+              <span style={{ fontSize: '0.72rem', color: '#16a34a', fontWeight: 600, cursor: 'pointer' }}>View All</span>
             </div>
-
-            <div style={{ textAlign: 'center', padding: '1rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: '0.78rem', color: '#374151', fontWeight: 600, lineHeight: 1.4, marginBottom: '0.2rem', margin: 0 }}>
+                  New chit scheme "Happy Savings" launched!
+                </p>
+                <span style={{ fontSize: '0.68rem', color: '#9ca3af' }}>3d ago</span>
+              </div>
               <MegaphoneIcon />
-              <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#374151', marginTop: '0.5rem' }}>
-                New Chit Schemes Launched!
-              </p>
-              <p style={{ fontSize: '0.75rem', color: '#6b7280', maxWidth: '180px', lineHeight: 1.3 }}>
-                "Happy Savings Chit" starting from ₹5,000 monthly.
-              </p>
-              <span style={{ fontSize: '0.7rem', color: '#9ca3af' }}>3d ago</span>
             </div>
           </div>
 
         </div>
-
       </div>
 
       <style>{`
-        .stats-grid-layout {
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        .dashboard-greeting {
+          font-size: 2rem;
+          font-weight: 800;
+          color: var(--color-primary-green);
+          line-height: 1.2;
+        }
+        .stat-label {
+          font-size: 0.68rem;
+          color: #6b7280;
+          font-weight: 500;
+          display: block;
+          margin-bottom: 0.35rem;
+          white-space: nowrap;
+        }
+        .stat-value {
+          font-size: 1.3rem;
+          font-weight: 700;
+          display: block;
+        }
+        .chit-amounts-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          padding-top: 1rem;
+          border-top: 1px solid #f3f4f6;
+          margin-bottom: 0;
+          text-align: center;
+        }
+        .chit-amount-col {
+          padding: 0 0.25rem 1rem 0.25rem;
+        }
+        .amount-label {
+          font-size: 0.68rem;
+          color: #6b7280;
+          font-weight: 500;
+          display: block;
+        }
+        .amount-value {
+          font-size: 1rem;
+          font-weight: 700;
+          margin-top: 0.2rem;
+        }
+        .chit-months-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          padding: 1rem 0;
+          border-top: 1px solid #f3f4f6;
+          border-bottom: 1px solid #f3f4f6;
+          margin-bottom: 1rem;
+          text-align: center;
+        }
+        .chit-month-col {
+          padding: 0 0.25rem;
+        }
+        .month-label {
+          font-size: 0.68rem;
+          color: #6b7280;
+          display: block;
+          margin-bottom: 0.2rem;
+        }
+        .month-value {
+          font-size: 1rem;
+          color: #374151;
+          font-weight: 700;
         }
         .other-chit-item:hover {
-          background-color: var(--color-primary-green-light) !important;
-          border-color: var(--color-primary-green) !important;
-          transform: translateY(-2px);
+          background-color: #f0fdf4 !important;
+          border-color: #bbf7d0 !important;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 16px rgba(34, 197, 94, 0.08) !important;
+          transition: all 0.2s ease;
         }
         @media (max-width: 768px) {
+          .dashboard-greeting {
+            font-size: 1.5rem;
+          }
           .dashboard-grid-layout {
             grid-template-columns: 1fr !important;
-            gap: 1.5rem !important;
+            gap: 1.25rem !important;
           }
-          .stats-grid-layout {
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 0.75rem !important;
+          .stat-label {
+            font-size: 0.6rem;
           }
-          .stats-grid-layout .card-premium {
-            padding: 1rem !important;
+          .stat-value {
+            font-size: 1.1rem;
           }
-          .stats-grid-layout span[style*="1.75rem"], .stats-grid-layout h3 {
-            font-size: 1.35rem !important;
+          .amount-label {
+            font-size: 0.62rem;
+          }
+          .amount-value {
+            font-size: 0.9rem;
+          }
+          .month-label {
+            font-size: 0.62rem;
+          }
+          .month-value {
+            font-size: 0.9rem;
+          }
+        }
+        @media (max-width: 380px) {
+          .chit-amounts-grid, .chit-months-grid {
+            gap: 0;
+          }
+          .amount-value {
+            font-size: 0.82rem;
+          }
+          .month-value {
+            font-size: 0.82rem;
+          }
+          .stat-value {
+            font-size: 1rem;
           }
         }
       `}</style>

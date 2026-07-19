@@ -179,6 +179,32 @@ const SystemRecords = () => {
     }
   };
 
+  const handleMarkAsUnpaid = async (paymentId) => {
+    if (!window.confirm('Reset this payment to pending (unpaid)? It will re-enter the verification queue.')) return;
+    try {
+      const response = await fetch(`${API_URL}/admin/payments/${paymentId}/mark-unpaid`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setSuccessMessage('Payment marked as unpaid and returned to verification queue.');
+        setTimeout(() => setSuccessMessage(''), 3500);
+        fetchRecords(false);
+      } else {
+        setSuccessMessage(data.message || 'Failed to mark as unpaid');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      }
+    } catch (error) {
+      console.error('Error marking as unpaid:', error);
+      setSuccessMessage('Connection error while marking as unpaid');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    }
+  };
+
   const getFullImgUrl = (path) => {
     if (!path) return '';
     if (path.startsWith('http://') || path.startsWith('https://')) {
@@ -423,10 +449,22 @@ const SystemRecords = () => {
                                         </button>
                                       </td>
                                       <td style={{ padding: '0.5rem' }}>
-                                        <span className={`badge ${p.status === 'approved' ? 'badge-approved' : p.status === 'pending' ? 'badge-pending' : 'badge-rejected'}`} style={{ fontSize: '0.7rem', padding: '2px 6px' }}>
-                                          {p.status}
-                                        </span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                                          <span className={`badge ${p.status === 'approved' ? 'badge-approved' : p.status === 'pending' ? 'badge-pending' : 'badge-rejected'}`} style={{ fontSize: '0.7rem', padding: '2px 6px' }}>
+                                            {p.status === 'approved' ? 'Paid' : p.status}
+                                          </span>
+                                          {p.status === 'approved' && (
+                                            <button
+                                              onClick={() => handleMarkAsUnpaid(p.id)}
+                                              className="btn-secondary"
+                                              style={{ padding: '2px 6px', fontSize: '0.7rem', borderColor: 'var(--color-danger)', color: 'var(--color-danger)', display: 'flex', alignItems: 'center', gap: '2px' }}
+                                            >
+                                              Mark Unpaid
+                                            </button>
+                                          )}
+                                        </div>
                                       </td>
+
                                     </tr>
                                   ))}
                                 </tbody>
@@ -496,6 +534,9 @@ const SystemRecords = () => {
                               {record.chit.endDate && <p>End Date: <strong>{new Date(record.chit.endDate).toLocaleDateString()}</strong></p>}
                               <p>Configured Members Required: <strong>{record.chit.totalMembers}</strong></p>
                               <p>Approved Enrolments Count: <strong>{approvedCount}</strong></p>
+                              <p>Managed By: <strong style={{ color: 'var(--color-primary-green)' }}>
+                                {record.chit.creator ? `${record.chit.creator.name} (${record.chit.creator.role})` : 'Superadmin'}
+                              </strong></p>
                             </div>
                           </div>
 
@@ -611,9 +652,20 @@ const SystemRecords = () => {
                                         </button>
                                       </td>
                                       <td style={{ padding: '0.5rem' }}>
-                                        <span className={`badge ${p.status === 'approved' ? 'badge-approved' : p.status === 'pending' ? 'badge-pending' : 'badge-rejected'}`} style={{ fontSize: '0.7rem', padding: '2px 6px' }}>
-                                          {p.status}
-                                        </span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                                          <span className={`badge ${p.status === 'approved' ? 'badge-approved' : p.status === 'pending' ? 'badge-pending' : 'badge-rejected'}`} style={{ fontSize: '0.7rem', padding: '2px 6px' }}>
+                                            {p.status === 'approved' ? 'Paid' : p.status}
+                                          </span>
+                                          {p.status === 'approved' && (
+                                            <button
+                                              onClick={() => handleMarkAsUnpaid(p.id)}
+                                              className="btn-secondary"
+                                              style={{ padding: '2px 6px', fontSize: '0.7rem', borderColor: 'var(--color-danger)', color: 'var(--color-danger)', display: 'flex', alignItems: 'center', gap: '2px' }}
+                                            >
+                                              Mark Unpaid
+                                            </button>
+                                          )}
+                                        </div>
                                       </td>
                                     </tr>
                                   ))}

@@ -10,6 +10,7 @@ import BottomNav from './components/BottomNav';
 // Public Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
+import StaffLogin from './pages/StaffLogin';
 import About from './pages/About';
 import Contact from './pages/Contact';
 
@@ -26,12 +27,13 @@ import ChitApprovals from './pages/admin/ChitApprovals';
 import ChitManager from './pages/admin/ChitManager';
 import VerifyPayments from './pages/admin/VerifyPayments';
 import SystemRecords from './pages/admin/SystemRecords';
+import EmployeeManager from './pages/admin/EmployeeManager';
 
 // Layout containing Navbar and Sidebar (conditionally)
 const MainLayout = () => {
   const { user } = useAuth();
   const location = useLocation();
-  const isAuthPage = ['/login', '/register'].includes(location.pathname);
+  const isAuthPage = ['/login', '/register', '/staff-login'].includes(location.pathname);
   
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} className={user && !isAuthPage ? "main-app-wrapper" : ""}>
@@ -87,6 +89,17 @@ const AdminRoute = () => {
   return <Outlet />;
 };
 
+// Route protection for staff (superadmin or employee)
+const StaffRoute = () => {
+  const { user } = useAuth();
+  
+  if (user?.role !== 'superadmin' && user?.role !== 'employee') {
+    return <Navigate to="/" replace />;
+  }
+  
+  return <Outlet />;
+};
+
 // Route blocking for guests (e.g. login/register when already signed in)
 const GuestRoute = () => {
   const { user, loading } = useAuth();
@@ -107,6 +120,7 @@ function App() {
             <Route element={<MainLayout />}>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/staff-login" element={<StaffLogin />} />
             </Route>
           </Route>
 
@@ -127,13 +141,18 @@ function App() {
               <Route path="/my-chits" element={<MyActiveChits />} />
               <Route path="/payments" element={<UserPayments />} />
 
-              {/* Admin Only Paths */}
-              <Route element={<AdminRoute />}>
-                <Route path="/admin/users" element={<UserApprovals />} />
+              {/* Staff & Admin Shared Paths */}
+              <Route element={<StaffRoute />}>
                 <Route path="/admin/chit-approvals" element={<ChitApprovals />} />
                 <Route path="/admin/chits" element={<ChitManager />} />
                 <Route path="/admin/payments" element={<VerifyPayments />} />
                 <Route path="/admin/records" element={<SystemRecords />} />
+              </Route>
+
+              {/* Admin Only Paths */}
+              <Route element={<AdminRoute />}>
+                <Route path="/admin/users" element={<UserApprovals />} />
+                <Route path="/admin/employees" element={<EmployeeManager />} />
               </Route>
             </Route>
           </Route>
