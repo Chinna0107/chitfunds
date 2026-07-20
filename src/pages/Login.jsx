@@ -183,75 +183,69 @@ const Login = () => {
         flexDirection: 'column',
         justifyContent: 'space-between',
         padding: '3rem 4rem',
-        background: 'linear-gradient(180deg, #fefce8 0%, #fef9c3 100%)',
+        background: '#ffffff',
         borderRight: '1px solid rgba(30, 107, 62, 0.08)',
         position: 'relative',
         overflow: 'hidden'
       }} className="login-hero-section">
         
         {/* Header Logo & Bell */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4rem', zIndex: 10 }}>
+        <div className="animate-fade-in-up delay-100" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4rem', zIndex: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <img src={logoImg} alt="Logo" style={{ width: '85px', height: '85px', borderRadius: '50%', objectFit: 'cover', boxShadow: '0 4px 15px rgba(30, 107, 62, 0.1)', border: '4px solid white' }} />
+            <img src={logoImg} alt="Logo" className="animate-glow" style={{ width: '75px', height: '75px', borderRadius: '50%', objectFit: 'cover', boxShadow: '0 4px 15px rgba(30, 107, 62, 0.1)', border: '4px solid white' }} />
             <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
-              <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#166534', letterSpacing: '0.02em' }}>SKS</span>
+              <span style={{ fontSize: '2rem', fontWeight: 800, color: '#166534', letterSpacing: '0.02em' }}>SKS</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <div style={{ height: '2px', width: '25px', backgroundColor: '#166534' }} />
-                <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#4b5563', letterSpacing: '0.15em' }}>CHIT BOOK</span>
-                <div style={{ height: '2px', width: '25px', backgroundColor: '#166534' }} />
+                <div style={{ height: '2px', width: '20px', backgroundColor: '#166534' }} />
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#4b5563', letterSpacing: '0.15em' }}>CHIT BOOK</span>
+                <div style={{ height: '2px', width: '20px', backgroundColor: '#166534' }} />
               </div>
             </div>
           </div>
           
-          <div style={{ position: 'relative', width: '48px', height: '48px', borderRadius: '50%', border: '2.5px solid #166534', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#166534' }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            <div style={{ position: 'absolute', top: '-1px', right: '2px', width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#166534', border: '2.5px solid #fefce8' }} />
+          <div style={{ position: 'relative', width: '44px', height: '44px', borderRadius: '50%', border: '2.5px solid #166534', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#166534', cursor: 'pointer', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'} onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <div className="animate-pulse" style={{ position: 'absolute', top: '-1px', right: '1px', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#166534', border: '2.5px solid #fefce8' }} />
           </div>
         </div>
 
         {/* Content & Image Row */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1, position: 'relative', zIndex: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1, position: 'relative', zIndex: 10, gap: '2rem' }}>
           
           {/* Text Content */}
-          <div style={{ flex: 1, maxWidth: '420px', zIndex: 10 }}>
-            <h1 style={{ fontSize: '3.5rem', fontWeight: 800, color: '#166534', lineHeight: 1.15, marginBottom: '1.25rem' }}>
+          <div style={{ flex: 1, maxWidth: '400px', zIndex: 10 }}>
+            <h1 className="animate-fade-in-up delay-200" style={{ fontSize: '3rem', fontWeight: 800, color: '#166534', lineHeight: 1.15, marginBottom: '1.25rem', textShadow: '0 2px 10px rgba(22, 101, 52, 0.05)' }}>
               Secure Chit <br /> Management
             </h1>
-            <p style={{ color: '#4b5563', fontSize: '1.15rem', lineHeight: 1.6, marginBottom: '2.5rem', maxWidth: '320px', fontWeight: 500 }}>
+            <p className="animate-fade-in-up delay-300" style={{ color: '#4b5563', fontSize: '1.05rem', lineHeight: 1.6, marginBottom: '2.5rem', maxWidth: '300px', fontWeight: 500 }}>
               Simple. Secure. Transparent. <br /> Manage your chit funds <br /> with confidence.
             </p>
 
-            <div style={{
+            <div className="animate-fade-in-up delay-400" style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.75rem',
+              gap: '0.6rem',
               backgroundColor: '#dcfce7',
-              border: 'none',
-              padding: '0.6rem 1.2rem',
+              border: '1px solid rgba(22, 101, 52, 0.1)',
+              padding: '0.5rem 1rem',
               borderRadius: 'var(--radius-full)',
               color: '#166534',
               fontWeight: 700,
-              fontSize: '1rem',
+              fontSize: '0.9rem',
               boxShadow: '0 4px 15px rgba(22, 101, 52, 0.1)',
-              marginBottom: '4rem'
-            }}>
-              <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: '#166534', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-                <Check size={14} strokeWidth={3.5} />
+              transition: 'all 0.3s ease',
+              cursor: 'default'
+            }} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+              <div style={{ width: '18px', height: '18px', borderRadius: '50%', backgroundColor: '#166534', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                <Check size={12} strokeWidth={3.5} />
               </div>
               <span>Trusted by 1000+ Users</span>
-            </div>
-
-            {/* Slider dots */}
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-              <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#166534' }} />
-              <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#d1d5db' }} />
-              <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#d1d5db' }} />
             </div>
           </div>
 
           {/* Hero Image */}
-          <div style={{ position: 'absolute', right: '-15%', top: '50%', transform: 'translateY(-50%)', width: '120%', zIndex: 0, display: 'flex', justifyContent: 'flex-end', pointerEvents: 'none' }}>
-            <img src={heroImg} alt="Hero Illustration" className="animate-float" style={{ width: '100%', maxWidth: '650px', height: 'auto', objectFit: 'contain', mixBlendMode: 'darken' }} />
+          <div style={{ flex: 1.2, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 0, pointerEvents: 'none' }}>
+            <img src={heroImg} alt="Hero Illustration" className="animate-fade-in-up delay-500 animate-float" style={{ width: '100%', maxWidth: '500px', height: 'auto', objectFit: 'contain' }} />
           </div>
         </div>
       </div>

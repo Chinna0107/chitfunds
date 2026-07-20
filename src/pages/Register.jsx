@@ -207,55 +207,75 @@ const Register = () => {
 
       {/* Desktop Left Column - Hero Illustration Banner */}
       <div style={{
-        flex: 1,
+        flex: 1.2,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        padding: '3rem',
-        background: 'linear-gradient(180deg, #f0fdf4 0%, #e2efe8 100%)',
-        borderRight: '1px solid rgba(30, 107, 62, 0.08)'
-      }} className="register-hero-section">
-        {/* Header Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-          <img src={logoImg} alt="Logo" style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', boxShadow: '0 4px 20px rgba(30, 107, 62, 0.15)', border: '4px solid white' }} />
-        </div>
-
-        {/* Content Block */}
-        <div style={{ margin: '3rem 0', maxWidth: '460px' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#166534', lineHeight: 1.2, marginBottom: '1rem' }}>
-            Start Saving Together
-          </h1>
-          <p style={{ color: '#4b5563', fontSize: '1.1rem', lineHeight: 1.6, marginBottom: '2rem' }}>
-            Submit your documents securely. Become part of premium chit fund schemes and watch your wealth grow.
-          </p>
-
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            backgroundColor: '#fff',
-            border: '1.5px solid #166534',
-            padding: '0.5rem 1rem',
-            borderRadius: 'var(--radius-full)',
-            color: '#166534',
-            fontWeight: 700,
-            fontSize: '0.9rem',
-            boxShadow: 'var(--shadow-sm)'
-          }}>
-            <ShieldCheck size={18} />
-            <span>100% Encrypted & Safe Uploads</span>
+        padding: '3rem 4rem',
+        background: '#ffffff',
+        borderRight: '1px solid rgba(30, 107, 62, 0.08)',
+        position: 'relative',
+        overflow: 'hidden'
+      }} className="login-hero-section">
+        
+        {/* Header Logo & Bell */}
+        <div className="animate-fade-in-up delay-100" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4rem', zIndex: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <img src={logoImg} alt="Logo" className="animate-glow" style={{ width: '75px', height: '75px', borderRadius: '50%', objectFit: 'cover', boxShadow: '0 4px 15px rgba(30, 107, 62, 0.1)', border: '4px solid white' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
+              <span style={{ fontSize: '2rem', fontWeight: 800, color: '#166534', letterSpacing: '0.02em' }}>SKS</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{ height: '2px', width: '20px', backgroundColor: '#166534' }} />
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#4b5563', letterSpacing: '0.15em' }}>CHIT BOOK</span>
+                <div style={{ height: '2px', width: '20px', backgroundColor: '#166534' }} />
+              </div>
+            </div>
           </div>
-
-          <div style={{ marginTop: '2.5rem' }}>
-            <RegisterIllustration />
+          
+          <div style={{ position: 'relative', width: '44px', height: '44px', borderRadius: '50%', border: '2.5px solid #166534', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#166534', cursor: 'pointer', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'} onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <div className="animate-pulse" style={{ position: 'absolute', top: '-1px', right: '1px', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#166534', border: '2.5px solid #fefce8' }} />
           </div>
         </div>
 
-        {/* Slider dots */}
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#cbe2d6' }} />
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#1e6b3e' }} />
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#cbe2d6' }} />
+        {/* Content & Image Row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1, position: 'relative', zIndex: 10, gap: '2rem' }}>
+          
+          {/* Text Content */}
+          <div style={{ flex: 1, maxWidth: '400px', zIndex: 10 }}>
+            <h1 className="animate-fade-in-up delay-200" style={{ fontSize: '3rem', fontWeight: 800, color: '#166534', lineHeight: 1.15, marginBottom: '1.25rem', textShadow: '0 2px 10px rgba(22, 101, 52, 0.05)' }}>
+              Start Saving <br /> Together
+            </h1>
+            <p className="animate-fade-in-up delay-300" style={{ color: '#4b5563', fontSize: '1.05rem', lineHeight: 1.6, marginBottom: '2.5rem', maxWidth: '300px', fontWeight: 500 }}>
+              Submit your documents securely. Watch your wealth grow.
+            </p>
+
+            <div className="animate-fade-in-up delay-400" style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.6rem',
+              backgroundColor: '#dcfce7',
+              border: '1px solid rgba(22, 101, 52, 0.1)',
+              padding: '0.5rem 1rem',
+              borderRadius: 'var(--radius-full)',
+              color: '#166534',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              boxShadow: '0 4px 15px rgba(22, 101, 52, 0.1)',
+              transition: 'all 0.3s ease',
+              cursor: 'default'
+            }} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+              <div style={{ width: '18px', height: '18px', borderRadius: '50%', backgroundColor: '#166534', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                <Check size={12} strokeWidth={3.5} />
+              </div>
+              <span>100% Encrypted & Safe</span>
+            </div>
+          </div>
+
+          {/* Hero Image */}
+          <div style={{ flex: 1.2, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 0, pointerEvents: 'none' }}>
+            <img src={heroImg} alt="Hero Illustration" className="animate-fade-in-up delay-500 animate-float" style={{ width: '100%', maxWidth: '500px', height: 'auto', objectFit: 'contain' }} />
+          </div>
         </div>
       </div>
 
