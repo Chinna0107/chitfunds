@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { 
-  LogIn, 
-  Mail, 
-  Lock, 
-  Smartphone, 
-  Eye, 
-  EyeOff, 
-  UserPlus, 
-  ArrowRight, 
-  ShieldCheck, 
-  LockKeyhole, 
-  ChevronRight, 
+import {
+  LogIn,
+  Mail,
+  Lock,
+  Smartphone,
+  Eye,
+  EyeOff,
+  UserPlus,
+  ArrowRight,
+  ShieldCheck,
+  LockKeyhole,
+  ChevronRight,
   ShieldAlert,
   HelpCircle,
-  X
+  X,
+  Check
 } from 'lucide-react';
-
+import logoImg from '../assets/logo.jpeg';
+import heroImg from '../assets/hero-illustration.png';
 // Premium SVG Illustration matching the screenshot details
 const ChitIllustration = () => (
   <svg viewBox="0 0 500 400" width="100%" height="100%" style={{ maxHeight: '320px' }} fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -27,7 +29,7 @@ const ChitIllustration = () => (
     <path d="M250 190h15v90h-15zm40 0h15v90h-15zm40 0h15v90h-15z" fill="#cbe2d6" />
     <circle cx="300" cy="155" r="10" fill="#1e6b3e" />
     <polygon points="300,148 295,157 305,157" fill="#facc15" />
-    
+
     {/* Big Green Piggy Bank */}
     <circle cx="330" cy="270" r="50" fill="#2e7d32" opacity="0.15" />
     <path d="M370 260c0-25-20-45-45-45s-50 20-50 45c0 15 8 28 20 36l-5 19h15l5-15h20l5 15h15l-5-19c12-8 20-21 20-36z" fill="#66bb6a" />
@@ -48,7 +50,7 @@ const ChitIllustration = () => (
       <rect x="0" y="6" width="40" height="12" rx="6" fill="#ca8a04" />
       <rect x="0" y="0" width="40" height="12" rx="6" fill="#facc15" />
     </g>
-    
+
     {/* Man placing coin */}
     <g transform="translate(180, 160)">
       {/* Body */}
@@ -76,7 +78,7 @@ const ChitIllustration = () => (
       <rect x="-10" y="54" width="50" height="15" rx="7" fill="#facc15" />
       <rect x="-10" y="42" width="50" height="15" rx="7" fill="#eab308" />
       <rect x="-10" y="30" width="50" height="15" rx="7" fill="#ca8a04" />
-      
+
       {/* Woman Body */}
       <path d="M10 20c0-10 15-10 15 0v35H10V20z" fill="#facc15" />
       <path d="M15 50l-15 30h15l10-30z" fill="#1f2937" />
@@ -106,13 +108,13 @@ const ChitIllustration = () => (
 const Login = () => {
   const { login, requestOtp, verifyOtp } = useAuth();
   const navigate = useNavigate();
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const [loginMode, setLoginMode] = useState('password'); // 'password' or 'otp'
   const [otpStep, setOtpStep] = useState(1); // 1 = enter email, 2 = enter otp
   const [otpVal, setOtpVal] = useState('');
@@ -173,95 +175,84 @@ const Login = () => {
       width: '100%',
       backgroundColor: '#fbfcf9',
     }} className="login-page-container">
-      
+
       {/* Desktop Left Column - Hero Illustration Banner */}
       <div style={{
-        flex: 1,
+        flex: 1.2,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        padding: '3rem',
-        background: 'linear-gradient(180deg, #f0fdf4 0%, #e2efe8 100%)',
-        borderRight: '1px solid rgba(30, 107, 62, 0.08)'
+        padding: '3rem 4rem',
+        background: 'linear-gradient(180deg, #fefce8 0%, #fef9c3 100%)',
+        borderRight: '1px solid rgba(30, 107, 62, 0.08)',
+        position: 'relative',
+        overflow: 'hidden'
       }} className="login-hero-section">
-        {/* Header Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{
-            width: '44px',
-            height: '44px',
-            borderRadius: '50%',
-            background: 'white',
-            border: '2.5px solid #1e6b3e',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
-            boxShadow: '0 2px 6px rgba(30, 107, 62, 0.15)'
-          }}>
-            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1e6b3e', fontFamily: 'Outfit, sans-serif' }}>S</span>
-            <div style={{
-              position: 'absolute',
-              bottom: '1px',
-              right: '2px',
-              width: '8px',
-              height: '8px',
-              background: '#ca8a04',
-              borderRadius: '50% 0 50% 50%',
-              transform: 'rotate(-45deg)'
-            }} />
-            <div style={{
-              position: 'absolute',
-              bottom: '1px',
-              left: '2px',
-              width: '8px',
-              height: '8px',
-              background: '#1e6b3e',
-              borderRadius: '50% 50% 50% 0',
-              transform: 'rotate(45deg)'
-            }} />
+        
+        {/* Header Logo & Bell */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4rem', zIndex: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <img src={logoImg} alt="Logo" style={{ width: '85px', height: '85px', borderRadius: '50%', objectFit: 'cover', boxShadow: '0 4px 15px rgba(30, 107, 62, 0.1)', border: '4px solid white' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
+              <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#166534', letterSpacing: '0.02em' }}>SKS</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{ height: '2px', width: '25px', backgroundColor: '#166534' }} />
+                <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#4b5563', letterSpacing: '0.15em' }}>CHIT BOOK</span>
+                <div style={{ height: '2px', width: '25px', backgroundColor: '#166534' }} />
+              </div>
+            </div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.1 }}>
-            <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1e6b3e', letterSpacing: '0.03em' }}>SANTHOSH</span>
-            <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#4b5563', letterSpacing: '0.15em' }}>— CHIT BOOK —</span>
+          
+          <div style={{ position: 'relative', width: '48px', height: '48px', borderRadius: '50%', border: '2.5px solid #166534', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#166534' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <div style={{ position: 'absolute', top: '-1px', right: '2px', width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#166534', border: '2.5px solid #fefce8' }} />
           </div>
         </div>
 
-        {/* Content Block */}
-        <div style={{ margin: '3rem 0', maxWidth: '460px' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#166534', lineHeight: 1.2, marginBottom: '1rem' }}>
-            Secure Chit Management
-          </h1>
-          <p style={{ color: '#4b5563', fontSize: '1.1rem', lineHeight: 1.6, marginBottom: '2rem' }}>
-            Simple. Secure. Transparent. Manage your chit funds with confidence.
-          </p>
+        {/* Content & Image Row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1, position: 'relative', zIndex: 10 }}>
+          
+          {/* Text Content */}
+          <div style={{ flex: 1, maxWidth: '420px', zIndex: 10 }}>
+            <h1 style={{ fontSize: '3.5rem', fontWeight: 800, color: '#166534', lineHeight: 1.15, marginBottom: '1.25rem' }}>
+              Secure Chit <br /> Management
+            </h1>
+            <p style={{ color: '#4b5563', fontSize: '1.15rem', lineHeight: 1.6, marginBottom: '2.5rem', maxWidth: '320px', fontWeight: 500 }}>
+              Simple. Secure. Transparent. <br /> Manage your chit funds <br /> with confidence.
+            </p>
 
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            backgroundColor: '#fff',
-            border: '1.5px solid #166534',
-            padding: '0.5rem 1rem',
-            borderRadius: 'var(--radius-full)',
-            color: '#166534',
-            fontWeight: 700,
-            fontSize: '0.9rem',
-            boxShadow: 'var(--shadow-sm)'
-          }}>
-            <ShieldCheck size={18} />
-            <span>Trusted by 1000+ Users</span>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              backgroundColor: '#dcfce7',
+              border: 'none',
+              padding: '0.6rem 1.2rem',
+              borderRadius: 'var(--radius-full)',
+              color: '#166534',
+              fontWeight: 700,
+              fontSize: '1rem',
+              boxShadow: '0 4px 15px rgba(22, 101, 52, 0.1)',
+              marginBottom: '4rem'
+            }}>
+              <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: '#166534', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                <Check size={14} strokeWidth={3.5} />
+              </div>
+              <span>Trusted by 1000+ Users</span>
+            </div>
+
+            {/* Slider dots */}
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#166534' }} />
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#d1d5db' }} />
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#d1d5db' }} />
+            </div>
           </div>
 
-          <div style={{ marginTop: '2.5rem' }}>
-            <ChitIllustration />
+          {/* Hero Image */}
+          <div style={{ position: 'absolute', right: '-15%', top: '50%', transform: 'translateY(-50%)', width: '120%', zIndex: 0, display: 'flex', justifyContent: 'flex-end', pointerEvents: 'none' }}>
+            <img src={heroImg} alt="Hero Illustration" className="animate-float" style={{ width: '100%', maxWidth: '650px', height: 'auto', objectFit: 'contain', mixBlendMode: 'darken' }} />
           </div>
-        </div>
-
-        {/* Slider dots */}
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#1e6b3e' }} />
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#cbe2d6' }} />
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#cbe2d6' }} />
         </div>
       </div>
 
@@ -275,26 +266,65 @@ const Login = () => {
         padding: '2rem 1.5rem',
         overflowY: 'auto'
       }}>
-        {/* Mobile Header Logo (Visible only on mobile) */}
-        <div className="mobile-login-logo" style={{ display: 'none', marginBottom: '2rem', alignItems: 'center', gap: '0.7rem' }}>
-          <div style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '50%',
-            background: 'white',
-            border: '2px solid #1e6b3e',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative'
-          }}>
-            <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1e6b3e', transform: 'translateY(-1px)' }}>S</span>
-            <div style={{ position: 'absolute', bottom: '1px', right: '1px', width: '6px', height: '6px', background: '#ca8a04', borderRadius: '50% 0 50% 50%', transform: 'rotate(-45deg)' }} />
-            <div style={{ position: 'absolute', bottom: '1px', left: '1px', width: '6px', height: '6px', background: '#1e6b3e', borderRadius: '50% 50% 50% 0', transform: 'rotate(45deg)' }} />
+        {/* Mobile Header Hero (Visible only on mobile) */}
+        <div className="mobile-login-logo" style={{ display: 'none', flexDirection: 'column', width: '100%', padding: '0.5rem', marginBottom: '1.5rem', overflow: 'hidden', position: 'relative' }}>
+          
+          {/* Header Logo & Bell */}
+          <div className="animate-fade-in-up delay-100" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <img src={logoImg} alt="Logo" className="animate-glow" style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover', border: '2px solid white' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
+                <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#166534', letterSpacing: '0.02em' }}>SKS</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <div style={{ height: '1.5px', width: '15px', backgroundColor: '#166534' }} />
+                  <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#4b5563', letterSpacing: '0.1em' }}>CHIT BOOK</span>
+                  <div style={{ height: '1.5px', width: '15px', backgroundColor: '#166534' }} />
+                </div>
+              </div>
+            </div>
+            
+            <div style={{ position: 'relative', width: '32px', height: '32px', borderRadius: '50%', border: '1.5px solid #166534', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#166534' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              <div style={{ position: 'absolute', top: '-1px', right: '-1px', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#166534', border: '1.5px solid #fbfcf9' }} />
+            </div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1 }}>
-            <span style={{ fontSize: '1.15rem', fontWeight: 800, color: '#1e6b3e' }}>SANTHOSH</span>
-            <span style={{ fontSize: '0.55rem', fontWeight: 700, color: '#4b5563', letterSpacing: '0.12em' }}>CHIT BOOK</span>
+
+          {/* Content & Image Row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', minHeight: '180px' }}>
+            
+            {/* Text Content (Left) */}
+            <div style={{ flex: '1 1 55%', zIndex: 10 }}>
+              <h1 className="animate-fade-in-up delay-200" style={{ fontSize: '1.4rem', fontWeight: 800, color: '#166534', lineHeight: 1.15, marginBottom: '0.75rem' }}>
+                Secure Chit <br /> Management
+              </h1>
+              <p className="animate-fade-in-up delay-300" style={{ color: '#4b5563', fontSize: '0.8rem', lineHeight: 1.4, marginBottom: '1rem', maxWidth: '180px', fontWeight: 500 }}>
+                Simple. Secure. Transparent. Manage your chit funds with confidence.
+              </p>
+
+              <div className="animate-fade-in-up delay-400" style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                backgroundColor: '#dcfce7',
+                padding: '0.4rem 0.6rem',
+                borderRadius: 'var(--radius-full)',
+                color: '#166534',
+                fontWeight: 700,
+                fontSize: '0.7rem',
+                boxShadow: '0 2px 8px rgba(22, 101, 52, 0.1)',
+                marginBottom: '1rem'
+              }}>
+                <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#166534', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                  <Check size={10} strokeWidth={3} />
+                </div>
+                <span>Trusted by 1000+</span>
+              </div>
+            </div>
+
+            {/* Hero Image (Right) */}
+            <div style={{ flex: '1 1 45%', display: 'flex', justifyContent: 'flex-end', position: 'absolute', right: '-5%', top: '0', bottom: '0', alignItems: 'center', zIndex: 0, pointerEvents: 'none' }}>
+              <img src={heroImg} alt="Hero Illustration" className="animate-fade-in-up delay-500 animate-float" style={{ width: '130%', maxWidth: '200px', height: 'auto', objectFit: 'contain', mixBlendMode: 'darken' }} />
+            </div>
           </div>
         </div>
 
@@ -344,6 +374,40 @@ const Login = () => {
             </div>
           )}
 
+          {/* Login Tabs */}
+          <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', marginBottom: '1.5rem' }}>
+            <button
+              type="button"
+              onClick={() => { setLoginMode('password'); setError(''); }}
+              style={{
+                flex: 1,
+                padding: '0.75rem 1rem',
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                color: loginMode === 'password' ? '#166534' : '#6b7280',
+                borderBottom: loginMode === 'password' ? '2px solid #166534' : '2px solid transparent',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              Password Login
+            </button>
+            <button
+              type="button"
+              onClick={() => { setLoginMode('otp'); setError(''); }}
+              style={{
+                flex: 1,
+                padding: '0.75rem 1rem',
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                color: loginMode === 'otp' ? '#166534' : '#6b7280',
+                borderBottom: loginMode === 'otp' ? '2px solid #166534' : '2px solid transparent',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              OTP Login
+            </button>
+          </div>
+
           {/* Form Area */}
           {loginMode === 'password' && (
             <>
@@ -351,28 +415,26 @@ const Login = () => {
                 <div className="input-group" style={{ marginBottom: '1.25rem' }}>
                   <div style={{ position: 'relative' }}>
                     <Mail size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
-                    <input id="email" type="email" required placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} className="input-field" style={{ paddingLeft: '2.75rem', height: '48px', fontSize: '0.95rem' }} />
+                    <input id="email-password" type="email" required placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} className="input-field" style={{ paddingLeft: '2.75rem', height: '48px', fontSize: '0.95rem' }} />
                   </div>
                 </div>
 
-                <div className="input-group" style={{ marginBottom: '0.75rem' }}>
+                <div className="input-group" style={{ marginBottom: '1rem' }}>
                   <div style={{ position: 'relative' }}>
                     <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
-                    <input id="password" type={showPassword ? 'text' : 'password'} required placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="input-field" style={{ paddingLeft: '2.75rem', paddingRight: '2.75rem', height: '48px', fontSize: '0.95rem' }} />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', display: 'flex', alignItems: 'center' }}>
+                    <input id="password" type={showPassword ? 'text' : 'password'} required placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="input-field" style={{ paddingLeft: '2.75rem', paddingRight: '3rem', height: '48px', fontSize: '0.95rem' }} />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', padding: '0.5rem' }}>
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
-                  <Link to="/contact" style={{ fontSize: '0.85rem', fontWeight: 600, color: '#166534', textDecoration: 'none' }}>
-                    Forgot Password?
-                  </Link>
+                  <Link to="/forgot-password" style={{ fontSize: '0.85rem', color: '#166534', fontWeight: 600 }}>Forgot Password?</Link>
                 </div>
 
                 <button type="submit" disabled={loading} className="btn-primary" style={{ width: '100%', height: '48px', borderRadius: 'var(--radius-full)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.5rem', fontSize: '1rem', fontWeight: 700, boxShadow: '0 4px 12px rgba(30, 107, 62, 0.2)' }}>
-                  <span>{loading ? 'Authenticating...' : 'Login'}</span>
+                  <span>{loading ? 'Logging in...' : 'Login securely'}</span>
                   <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <ArrowRight size={16} />
                   </div>
@@ -386,27 +448,6 @@ const Login = () => {
                 </div>
                 <ChevronRight size={16} />
               </Link>
-
-              <div style={{ display: 'flex', alignItems: 'center', margin: '2rem 0', color: '#9ca3af', fontSize: '0.85rem' }}>
-                <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }} />
-                <span style={{ padding: '0.25rem 0.5rem', border: '1px solid #e5e7eb', borderRadius: '50%', background: '#fff', fontSize: '0.75rem', fontWeight: 700 }}>OR</span>
-                <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }} />
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <button onClick={() => { setLoginMode('otp'); setOtpStep(1); setError(''); }} type="button" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', border: '1px solid #e5e7eb', borderRadius: 'var(--radius-md)', backgroundColor: '#fafbfc', transition: 'all 0.2s ease', cursor: 'pointer' }} className="quick-otp-btn">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#fefbeb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ca8a04' }}>
-                      <Mail size={16} />
-                    </div>
-                    <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
-                      <p style={{ fontSize: '0.75rem', color: '#6b7280' }}>Login with</p>
-                      <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#374151' }}>Email + OTP</p>
-                    </div>
-                  </div>
-                  <ChevronRight size={16} color="#9ca3af" />
-                </button>
-              </div>
             </>
           )}
 
@@ -421,40 +462,27 @@ const Login = () => {
                 </div>
 
                 <button type="submit" disabled={loading} className="btn-primary" style={{ width: '100%', height: '48px', borderRadius: 'var(--radius-full)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.5rem', fontSize: '1rem', fontWeight: 700, boxShadow: '0 4px 12px rgba(30, 107, 62, 0.2)' }}>
-                  <span>{loading ? 'Sending...' : 'Send OTP'}</span>
+                  <span>{loading ? 'Sending...' : 'Login with Email + OTP'}</span>
                   <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <ArrowRight size={16} />
                   </div>
                 </button>
               </form>
 
-              <div style={{ display: 'flex', alignItems: 'center', margin: '2rem 0', color: '#9ca3af', fontSize: '0.85rem' }}>
-                <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }} />
-                <span style={{ padding: '0.25rem 0.5rem', border: '1px solid #e5e7eb', borderRadius: '50%', background: '#fff', fontSize: '0.75rem', fontWeight: 700 }}>OR</span>
-                <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }} />
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <button onClick={() => { setLoginMode('password'); setError(''); }} type="button" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', border: '1px solid #e5e7eb', borderRadius: 'var(--radius-md)', backgroundColor: '#fafbfc', transition: 'all 0.2s ease', cursor: 'pointer' }} className="quick-otp-btn">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#166534' }}>
-                      <Lock size={16} />
-                    </div>
-                    <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
-                      <p style={{ fontSize: '0.75rem', color: '#6b7280' }}>Login with</p>
-                      <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#374151' }}>Password</p>
-                    </div>
-                  </div>
-                  <ChevronRight size={16} color="#9ca3af" />
-                </button>
-              </div>
+              <Link to="/register" className="btn-gold-outline" style={{ width: '100%', height: '48px', borderRadius: 'var(--radius-full)', marginTop: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.5rem', fontSize: '0.95rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <UserPlus size={18} />
+                  <span>Register New Account</span>
+                </div>
+                <ChevronRight size={16} />
+              </Link>
             </>
           )}
 
           {loginMode === 'otp' && otpStep === 2 && (
             <>
               <p style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '1.5rem', textAlign: 'center' }}>
-                Please enter the 6-digit code sent to <br/><strong>{otpSentTo}</strong>
+                Please enter the 6-digit code sent to <br /><strong>{otpSentTo}</strong>
               </p>
               <form onSubmit={handleOtpVerify}>
                 <div className="input-group" style={{ marginBottom: '1.5rem' }}>
@@ -477,7 +505,7 @@ const Login = () => {
                   {loading ? 'Verifying...' : 'Verify & Log In'}
                 </button>
               </form>
-              
+
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem' }}>
                 <button onClick={() => setOtpStep(1)} type="button" style={{ fontSize: '0.85rem', fontWeight: 600, color: '#166534', background: 'none', border: 'none', cursor: 'pointer' }}>
                   Change Email Address

@@ -1,32 +1,33 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  Lock, 
-  Upload, 
-  CheckCircle, 
-  ShieldAlert, 
-  ArrowRight, 
-  ChevronRight, 
-  ShieldCheck, 
+import {
+  User,
+  Mail,
+  Phone,
+  Lock,
+  Upload,
+  CheckCircle,
+  ShieldAlert,
+  ArrowRight,
+  ChevronRight,
+  ShieldCheck,
   LockKeyhole,
   Check
 } from 'lucide-react';
-
+import logoImg from '../assets/logo.jpeg';
+import heroImg from '../assets/hero-illustration.png';
 const RegisterIllustration = () => (
   <svg viewBox="0 0 500 400" width="100%" height="100%" style={{ maxHeight: '320px' }} fill="none" xmlns="http://www.w3.org/2000/svg">
     {/* Financial Growth Illustration */}
     <rect x="50" y="320" width="400" height="8" rx="4" fill="#1e6b3e" opacity="0.2" />
-    
+
     {/* Growth Bar Charts */}
     <rect x="90" y="240" width="30" height="80" rx="6" fill="#1e6b3e" opacity="0.3" />
     <rect x="150" y="190" width="30" height="130" rx="6" fill="#1e6b3e" opacity="0.5" />
     <rect x="210" y="140" width="30" height="180" rx="6" fill="#1e6b3e" opacity="0.7" />
     <rect x="270" y="80" width="30" height="240" rx="6" fill="#1e6b3e" />
-    
+
     {/* Floating Coin Stacks next to bars */}
     <g transform="translate(330, 160)">
       <rect x="0" y="130" width="36" height="10" rx="5" fill="#facc15" />
@@ -43,7 +44,7 @@ const RegisterIllustration = () => (
       <rect x="0" y="158" width="36" height="10" rx="5" fill="#ca8a04" />
       <rect x="0" y="150" width="36" height="10" rx="5" fill="#facc15" />
     </g>
-    
+
     {/* Upward Gold Arrow Trend */}
     <path d="M70 290l80-50 60-50 60 40 80-110" stroke="#facc15" strokeWidth="4" strokeLinecap="round" />
     <polygon points="410,120 400,105 415,100" fill="#facc15" />
@@ -57,7 +58,7 @@ const RegisterIllustration = () => (
       <rect x="48" y="24" width="60" height="8" rx="4" fill="#e5e7eb" />
       <rect x="48" y="38" width="40" height="8" rx="4" fill="#a16207" opacity="0.3" />
     </g>
-    
+
     {/* Floating document shield check */}
     <g transform="translate(240, 210)">
       <rect x="0" y="0" width="90" height="60" rx="8" fill="#ffffff" filter="drop-shadow(0 4px 10px rgba(0,0,0,0.06))" />
@@ -70,16 +71,16 @@ const RegisterIllustration = () => (
 
 const Register = () => {
   const { register } = useAuth();
-  
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  
+
   // Files
   const [aadharFile, setAadharFile] = useState(null);
   const [panFile, setPanFile] = useState(null);
-  
+
   // Files previews names
   const [aadharName, setAadharName] = useState('');
   const [panName, setPanName] = useState('');
@@ -203,7 +204,7 @@ const Register = () => {
       width: '100%',
       backgroundColor: '#fbfcf9',
     }} className="register-page-container">
-      
+
       {/* Desktop Left Column - Hero Illustration Banner */}
       <div style={{
         flex: 1,
@@ -215,45 +216,8 @@ const Register = () => {
         borderRight: '1px solid rgba(30, 107, 62, 0.08)'
       }} className="register-hero-section">
         {/* Header Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{
-            width: '44px',
-            height: '44px',
-            borderRadius: '50%',
-            background: 'white',
-            border: '2.5px solid #1e6b3e',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
-            boxShadow: '0 2px 6px rgba(30, 107, 62, 0.15)'
-          }}>
-            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1e6b3e', fontFamily: 'Outfit, sans-serif' }}>S</span>
-            <div style={{
-              position: 'absolute',
-              bottom: '1px',
-              right: '2px',
-              width: '8px',
-              height: '8px',
-              background: '#ca8a04',
-              borderRadius: '50% 0 50% 50%',
-              transform: 'rotate(-45deg)'
-            }} />
-            <div style={{
-              position: 'absolute',
-              bottom: '1px',
-              left: '2px',
-              width: '8px',
-              height: '8px',
-              background: '#1e6b3e',
-              borderRadius: '50% 50% 50% 0',
-              transform: 'rotate(45deg)'
-            }} />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.1 }}>
-            <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1e6b3e', letterSpacing: '0.03em' }}>SANTHOSH</span>
-            <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#4b5563', letterSpacing: '0.15em' }}>— CHIT BOOK —</span>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+          <img src={logoImg} alt="Logo" style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', boxShadow: '0 4px 20px rgba(30, 107, 62, 0.15)', border: '4px solid white' }} />
         </div>
 
         {/* Content Block */}
@@ -305,26 +269,65 @@ const Register = () => {
         padding: '2rem 1.5rem',
         overflowY: 'auto'
       }}>
-        {/* Mobile Header Logo (Visible only on mobile) */}
-        <div className="mobile-login-logo" style={{ display: 'none', marginBottom: '1.5rem', alignItems: 'center', gap: '0.7rem' }}>
-          <div style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '50%',
-            background: 'white',
-            border: '2px solid #1e6b3e',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative'
-          }}>
-            <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1e6b3e', transform: 'translateY(-1px)' }}>S</span>
-            <div style={{ position: 'absolute', bottom: '1px', right: '1px', width: '6px', height: '6px', background: '#ca8a04', borderRadius: '50% 0 50% 50%', transform: 'rotate(-45deg)' }} />
-            <div style={{ position: 'absolute', bottom: '1px', left: '1px', width: '6px', height: '6px', background: '#1e6b3e', borderRadius: '50% 50% 50% 0', transform: 'rotate(45deg)' }} />
+        {/* Mobile Header Hero (Visible only on mobile) */}
+        <div className="mobile-login-logo" style={{ display: 'none', flexDirection: 'column', width: '100%', padding: '0.5rem', marginBottom: '1.5rem', overflow: 'hidden', position: 'relative' }}>
+          
+          {/* Header Logo & Bell */}
+          <div className="animate-fade-in-up delay-100" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <img src={logoImg} alt="Logo" className="animate-glow" style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover', border: '2px solid white' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
+                <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#166534', letterSpacing: '0.02em' }}>SKS</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <div style={{ height: '1.5px', width: '15px', backgroundColor: '#166534' }} />
+                  <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#4b5563', letterSpacing: '0.1em' }}>CHIT BOOK</span>
+                  <div style={{ height: '1.5px', width: '15px', backgroundColor: '#166534' }} />
+                </div>
+              </div>
+            </div>
+            
+            <div style={{ position: 'relative', width: '32px', height: '32px', borderRadius: '50%', border: '1.5px solid #166534', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#166534' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              <div style={{ position: 'absolute', top: '-1px', right: '-1px', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#166534', border: '1.5px solid #fbfcf9' }} />
+            </div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1 }}>
-            <span style={{ fontSize: '1.15rem', fontWeight: 800, color: '#1e6b3e' }}>SANTHOSH</span>
-            <span style={{ fontSize: '0.55rem', fontWeight: 700, color: '#4b5563', letterSpacing: '0.12em' }}>CHIT BOOK</span>
+
+          {/* Content & Image Row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', minHeight: '180px' }}>
+            
+            {/* Text Content (Left) */}
+            <div style={{ flex: '1 1 55%', zIndex: 10 }}>
+              <h1 className="animate-fade-in-up delay-200" style={{ fontSize: '1.4rem', fontWeight: 800, color: '#166534', lineHeight: 1.15, marginBottom: '0.75rem' }}>
+                Start Saving <br /> Together
+              </h1>
+              <p className="animate-fade-in-up delay-300" style={{ color: '#4b5563', fontSize: '0.8rem', lineHeight: 1.4, marginBottom: '1rem', maxWidth: '180px', fontWeight: 500 }}>
+                Submit your documents securely. Watch your wealth grow.
+              </p>
+
+              <div className="animate-fade-in-up delay-400" style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                backgroundColor: '#dcfce7',
+                padding: '0.4rem 0.6rem',
+                borderRadius: 'var(--radius-full)',
+                color: '#166534',
+                fontWeight: 700,
+                fontSize: '0.7rem',
+                boxShadow: '0 2px 8px rgba(22, 101, 52, 0.1)',
+                marginBottom: '1rem'
+              }}>
+                <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#166534', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                  <Check size={10} strokeWidth={3} />
+                </div>
+                <span>100% Secure</span>
+              </div>
+            </div>
+
+            {/* Hero Image (Right) */}
+            <div style={{ flex: '1 1 45%', display: 'flex', justifyContent: 'flex-end', position: 'absolute', right: '-5%', top: '0', bottom: '0', alignItems: 'center', zIndex: 0, pointerEvents: 'none' }}>
+              <img src={heroImg} alt="Hero Illustration" className="animate-fade-in-up delay-500 animate-float" style={{ width: '130%', maxWidth: '200px', height: 'auto', objectFit: 'contain', mixBlendMode: 'darken' }} />
+            </div>
           </div>
         </div>
 

@@ -236,7 +236,7 @@ const SystemRecords = () => {
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('Santhosh Chit Book — Users Records', 14, 18);
+    doc.text('SKS Chit Book — Users Records', 14, 18);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.text(`Exported on ${today}`, 14, 26);
@@ -327,7 +327,7 @@ const SystemRecords = () => {
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('Santhosh Chit Book \u2014 Chit Pool Records', 14, 18);
+    doc.text('SKS Chit Book — Chit Pool Records', 14, 18);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.text(`Exported on ${today}`, 14, 26);

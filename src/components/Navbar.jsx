@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Menu, X, Coins, LogOut, User as UserIcon, HelpCircle, PhoneCall } from 'lucide-react';
+import logoImg from '../assets/logo.jpeg';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -29,42 +30,9 @@ const Navbar = () => {
     }}>
       <Link to="/" style={{ textDecoration: 'none' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            background: 'white',
-            border: '2.5px solid #1e6b3e',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
-            boxShadow: '0 2px 6px rgba(30, 107, 62, 0.15)'
-          }}>
-            <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#1e6b3e', fontFamily: 'Outfit, sans-serif', transform: 'translateY(-1px)' }}>S</span>
-            <div style={{
-              position: 'absolute',
-              bottom: '1px',
-              right: '2px',
-              width: '8px',
-              height: '8px',
-              background: '#ca8a04',
-              borderRadius: '50% 0 50% 50%',
-              transform: 'rotate(-45deg)'
-            }} />
-            <div style={{
-              position: 'absolute',
-              bottom: '1px',
-              left: '2px',
-              width: '8px',
-              height: '8px',
-              background: '#1e6b3e',
-              borderRadius: '50% 50% 50% 0',
-              transform: 'rotate(45deg)'
-            }} />
-          </div>
+          <img src={logoImg} alt="SKS Chit Book Logo" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.1 }}>
-            <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1e6b3e', letterSpacing: '0.03em' }}>SANTHOSH</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1e6b3e', letterSpacing: '0.03em' }}>SKS</span>
             <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#4b5563', letterSpacing: '0.15em' }}>— CHIT BOOK —</span>
           </div>
         </div>
