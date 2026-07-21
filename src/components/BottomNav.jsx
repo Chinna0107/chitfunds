@@ -10,7 +10,8 @@ import {
   Briefcase,
   CreditCard, 
   User,
-  FolderOpen
+  FolderOpen,
+  Lock
 } from 'lucide-react';
 
 const BottomNav = () => {
@@ -24,6 +25,7 @@ const BottomNav = () => {
     { to: '/admin/chits', label: 'Create Chit', icon: <Plus size={24} color="#fff" />, isSpecial: true },
     { to: '/admin/chit-approvals', label: 'Approvals', icon: <Briefcase size={22} /> },
     { to: '/admin/payments', label: 'Verify', icon: <CheckSquare size={22} /> },
+    { to: '/admin/frozen-months', label: 'Taken', icon: <Lock size={22} /> },
     { to: '/admin/records', label: 'Records', icon: <FolderOpen size={22} /> },
   ];
 
@@ -32,6 +34,7 @@ const BottomNav = () => {
     { to: '/admin/chits', label: 'Manage Chits', icon: <Plus size={24} color="#fff" />, isSpecial: true },
     { to: '/admin/chit-approvals', label: 'Approvals', icon: <Briefcase size={22} /> },
     { to: '/admin/payments', label: 'Verify', icon: <CheckSquare size={22} /> },
+    { to: '/admin/frozen-months', label: 'Taken', icon: <Lock size={22} /> },
     { to: '/admin/records', label: 'Records', icon: <FolderOpen size={22} /> },
   ];
 

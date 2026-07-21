@@ -15,7 +15,8 @@ import {
   Hourglass,
   AlertCircle,
   Download,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Lock
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -29,6 +30,7 @@ const SystemRecords = () => {
   const [usersRecords, setUsersRecords] = useState([]);
   const [chitsRecords, setChitsRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedLedgerMonths, setSelectedLedgerMonths] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
   
   // Search Filters
@@ -792,13 +794,18 @@ const SystemRecords = () => {
                                   p.monthNumber === record.chit.currentMonth && 
                                   p.status === 'approved'
                                 );
+                                const freeze = record.chit.freezes?.find(f => f.monthNumber === record.chit.currentMonth);
+                                const isFrozenByMember = freeze?.userId === member.userId;
+                                
                                 return (
                                   <div key={member.user?.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: '#fff', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem' }}>
                                     <div>
                                       <span style={{ fontWeight: 600, display: 'block' }}>{member.user?.name}</span>
                                       <span style={{ color: 'var(--color-secondary)', fontSize: '0.75rem' }}>{member.user?.phone}</span>
                                     </div>
-                                    {hasPaidCurrentMonth ? (
+                                    {isFrozenByMember ? (
+                                      <span className="badge" style={{ fontSize: '0.7rem', backgroundColor: '#dcfce7', color: '#166534', border: '1px solid #16653422' }}>Taken Payment</span>
+                                    ) : hasPaidCurrentMonth ? (
                                       <span className="badge badge-approved" style={{ fontSize: '0.7rem' }}>Paid</span>
                                     ) : (
                                       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
@@ -840,55 +847,107 @@ const SystemRecords = () => {
                           {record.payments.length === 0 ? (
                             <p style={{ fontSize: '0.85rem', color: 'var(--color-secondary)', fontStyle: 'italic' }}>No contributions verified for this chit pool.</p>
                           ) : (
-                            <div style={{ overflowX: 'auto' }}>
-                              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
-                                <thead>
-                                  <tr style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--color-secondary)' }}>
-                                    <th style={{ padding: '0.5rem' }}>Member Name</th>
-                                    <th style={{ padding: '0.5rem' }}>Month</th>
-                                    <th style={{ padding: '0.5rem' }}>Amount</th>
-                                    <th style={{ padding: '0.5rem' }}>Transaction ID</th>
-                                    <th style={{ padding: '0.5rem' }}>Receipt Photo</th>
-                                    <th style={{ padding: '0.5rem' }}>Verification</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {record.payments.map(p => (
-                                    <tr key={p.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                                      <td style={{ padding: '0.5rem', fontWeight: 600 }}>{p.user?.name || 'Deleted Account'}</td>
-                                      <td style={{ padding: '0.5rem' }}>Month {p.monthNumber}</td>
-                                      <td style={{ padding: '0.5rem', fontWeight: 600 }}>₹{p.amount.toLocaleString()}</td>
-                                      <td style={{ padding: '0.5rem' }}><code>{p.transactionId}</code></td>
-                                      <td style={{ padding: '0.5rem' }}>
-                                        <button 
-                                          onClick={() => setLightboxUrl(getFullImgUrl(p.proofImgUrl))}
-                                          className="btn-secondary" 
-                                          style={{ padding: '2px 6px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '2px' }}
+                            <div>
+                              {(() => {
+                                const uniqueMonths = [...new Set(record.payments.map(p => p.monthNumber))].sort((a, b) => a - b);
+                                const activeMonth = selectedLedgerMonths[record.chit.id] || uniqueMonths[0];
+                                const filteredPayments = record.payments.filter(p => p.monthNumber === activeMonth);
+
+                                return (
+                                  <>
+                                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                                      {uniqueMonths.map(month => (
+                                        <button
+                                          key={month}
+                                          onClick={() => setSelectedLedgerMonths(prev => ({ ...prev, [record.chit.id]: month }))}
+                                          style={{
+                                            padding: '0.5rem 1rem',
+                                            borderRadius: '2rem',
+                                            border: activeMonth === month ? 'none' : '1px solid #e5e7eb',
+                                            backgroundColor: activeMonth === month ? '#16a34a' : '#f9fafb',
+                                            color: activeMonth === month ? '#fff' : '#4b5563',
+                                            fontWeight: 600,
+                                            fontSize: '0.85rem',
+                                            cursor: 'pointer',
+                                            whiteSpace: 'nowrap',
+                                            transition: 'all 0.2s'
+                                          }}
                                         >
-                                          <Eye size={10} />
-                                          <span>View</span>
+                                          Month {month}
                                         </button>
-                                      </td>
-                                      <td style={{ padding: '0.5rem' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                                          <span className={`badge ${p.status === 'approved' ? 'badge-approved' : p.status === 'pending' ? 'badge-pending' : 'badge-rejected'}`} style={{ fontSize: '0.7rem', padding: '2px 6px' }}>
-                                            {p.status === 'approved' ? 'Paid' : p.status}
-                                          </span>
-                                          {p.status === 'approved' && (
-                                            <button
-                                              onClick={() => handleMarkAsUnpaid(p.id)}
-                                              className="btn-secondary"
-                                              style={{ padding: '2px 6px', fontSize: '0.7rem', borderColor: 'var(--color-danger)', color: 'var(--color-danger)', display: 'flex', alignItems: 'center', gap: '2px' }}
-                                            >
-                                              Mark Unpaid
-                                            </button>
-                                          )}
-                                        </div>
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
+                                      ))}
+                                    </div>
+                                    <div style={{ overflowX: 'auto' }}>
+                                      <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+                                        <thead>
+                                          <tr style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--color-secondary)' }}>
+                                            <th style={{ padding: '0.5rem' }}>Member Name</th>
+                                            <th style={{ padding: '0.5rem' }}>Amount</th>
+                                            <th style={{ padding: '0.5rem' }}>Transaction ID</th>
+                                            <th style={{ padding: '0.5rem' }}>Receipt Photo</th>
+                                            <th style={{ padding: '0.5rem' }}>Verification</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {filteredPayments.map(p => (
+                                            <tr key={p.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                                              <td style={{ padding: '0.5rem', fontWeight: 600 }}>{p.user?.name || 'Deleted Account'}</td>
+                                              <td style={{ padding: '0.5rem', fontWeight: 600 }}>₹{p.amount.toLocaleString()}</td>
+                                              <td style={{ padding: '0.5rem' }}><code>{p.transactionId}</code></td>
+                                              <td style={{ padding: '0.5rem' }}>
+                                                <button 
+                                                  onClick={() => setLightboxUrl(getFullImgUrl(p.proofImgUrl))}
+                                                  className="btn-secondary" 
+                                                  style={{ padding: '2px 6px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '2px' }}
+                                                >
+                                                  <Eye size={10} />
+                                                  <span>View</span>
+                                                </button>
+                                              </td>
+                                              <td style={{ padding: '0.5rem' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                                                  <span className={`badge ${p.status === 'approved' ? 'badge-approved' : p.status === 'pending' ? 'badge-pending' : 'badge-rejected'}`} style={{ fontSize: '0.7rem', padding: '2px 6px' }}>
+                                                    {p.status === 'approved' ? 'Paid' : p.status}
+                                                  </span>
+                                                  {p.status === 'approved' && (
+                                                    <button
+                                                      onClick={() => handleMarkAsUnpaid(p.id)}
+                                                      className="btn-secondary"
+                                                      style={{ padding: '2px 6px', fontSize: '0.7rem', borderColor: 'var(--color-danger)', color: 'var(--color-danger)', display: 'flex', alignItems: 'center', gap: '2px' }}
+                                                    >
+                                                      Mark Unpaid
+                                                    </button>
+                                                  )}
+                                                </div>
+                                              </td>
+                                            </tr>
+                                          ))}
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Frozen Months database for this chit */}
+                        <div style={{ marginTop: '2rem' }}>
+                          <h4 style={{ fontWeight: 700, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <Lock size={16} />
+                            <span>Taken Payments (Frozen Months)</span>
+                          </h4>
+                          {!record.chit.freezes || record.chit.freezes.length === 0 ? (
+                            <p style={{ fontSize: '0.85rem', color: 'var(--color-secondary)', fontStyle: 'italic' }}>No months have been taken/frozen yet.</p>
+                          ) : (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
+                              {record.chit.freezes.map(freeze => (
+                                <div key={freeze.id} style={{ padding: '0.75rem', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 'var(--radius-sm)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                  <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#166534' }}>Month {freeze.monthNumber}</span>
+                                  <span style={{ fontSize: '0.8rem', color: '#14532d' }}>Taken by: <strong>{freeze.user?.name || 'Unknown User'}</strong></span>
+                                </div>
+                              ))}
                             </div>
                           )}
                         </div>

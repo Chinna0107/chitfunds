@@ -28,6 +28,7 @@ import ChitManager from './pages/admin/ChitManager';
 import VerifyPayments from './pages/admin/VerifyPayments';
 import SystemRecords from './pages/admin/SystemRecords';
 import EmployeeManager from './pages/admin/EmployeeManager';
+import FrozenMonths from './pages/admin/FrozenMonths';
 
 // Layout containing Navbar and Sidebar (conditionally)
 const MainLayout = () => {
@@ -146,6 +147,7 @@ function App() {
                 <Route path="/admin/chit-approvals" element={<ChitApprovals />} />
                 <Route path="/admin/chits" element={<ChitManager />} />
                 <Route path="/admin/payments" element={<VerifyPayments />} />
+                <Route path="/admin/frozen-months" element={<FrozenMonths />} />
                 <Route path="/admin/records" element={<SystemRecords />} />
               </Route>
 

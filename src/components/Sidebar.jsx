@@ -10,7 +10,8 @@ import {
   Briefcase, 
   History, 
   User,
-  FolderOpen
+  FolderOpen,
+  Lock
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -25,6 +26,7 @@ const Sidebar = () => {
     { to: '/admin/chits', label: 'Create Chits', icon: <PlusSquare size={20} /> },
     { to: '/admin/chit-approvals', label: 'Chit Approvals', icon: <Briefcase size={20} /> },
     { to: '/admin/payments', label: 'Verify Payments', icon: <CheckSquare size={20} /> },
+    { to: '/admin/frozen-months', label: 'Taken Payments', icon: <Lock size={20} /> },
     { to: '/admin/records', label: 'System Records', icon: <FolderOpen size={20} /> },
     { to: '/profile', label: 'My Profile', icon: <User size={20} /> },
   ];
@@ -34,6 +36,7 @@ const Sidebar = () => {
     { to: '/admin/chits', label: 'Manage Chits', icon: <PlusSquare size={20} /> },
     { to: '/admin/chit-approvals', label: 'Chit Approvals', icon: <Briefcase size={20} /> },
     { to: '/admin/payments', label: 'Verify Payments', icon: <CheckSquare size={20} /> },
+    { to: '/admin/frozen-months', label: 'Taken Payments', icon: <Lock size={20} /> },
     { to: '/admin/records', label: 'System Records', icon: <FolderOpen size={20} /> },
     { to: '/profile', label: 'My Profile', icon: <User size={20} /> },
   ];

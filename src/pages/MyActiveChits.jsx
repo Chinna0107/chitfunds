@@ -9,9 +9,10 @@ import {
   CheckCircle, 
   AlertCircle, 
   X, 
-  DollarSign, 
+  DollarSign,
   CreditCard,
-  Edit3
+  Edit3,
+  Lock
 } from 'lucide-react';
 
 const MyActiveChits = () => {
@@ -30,6 +31,20 @@ const MyActiveChits = () => {
   const [proofFileName, setProofFileName] = useState('');
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Toast state
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+  // Custom Confirm Modal state
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, chitId: null, monthNumber: null });
+  const [isFreezing, setIsFreezing] = useState(false);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, show: false }));
+    }, 3000);
+  };
 
   const fetchData = async () => {
     try {
@@ -139,6 +154,39 @@ const MyActiveChits = () => {
 
   const getPaymentForMonth = (chitId, monthNumber) => {
     return payments.find((p) => p.chitId === chitId && p.monthNumber === monthNumber);
+  };
+
+  const handleFreezeMonth = (chitId, monthNumber) => {
+    setConfirmModal({ isOpen: true, chitId, monthNumber });
+  };
+
+  const confirmFreezeMonth = async () => {
+    const { chitId, monthNumber } = confirmModal;
+    setIsFreezing(true);
+    
+    try {
+      const res = await fetch(`${API_URL}/chits/${chitId}/freeze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ monthNumber })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, 'success');
+        fetchData();
+      } else {
+        showToast(data.message || 'Error freezing month', 'error');
+      }
+    } catch (error) {
+      console.error('Error freezing month:', error);
+      showToast('Server error while freezing month', 'error');
+    } finally {
+      setIsFreezing(false);
+      setConfirmModal({ isOpen: false, chitId: null, monthNumber: null });
+    }
   };
 
   if (loading) {
@@ -311,13 +359,21 @@ const MyActiveChits = () => {
                             const formattedDueDate = dueDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
                             const payment = getPaymentForMonth(chit.id, monthNum);
                             const isCurrent = chit.currentMonth === monthNum && chit.status === 'active';
+                            const freeze = chit.freezes?.find(f => f.monthNumber === monthNum);
+                            const userHasFrozenAny = chit.freezes?.some(f => f.userId === user.id);
+                            const isFrozenByMe = freeze?.userId === user.id;
                             
                             let statusText = 'Unpaid';
                             let statusBg = '#fef9c3';
                             let statusColor = '#92400e';
                             let canPay = chit.status === 'active' && monthNum <= chit.currentMonth;
 
-                            if (payment) {
+                            if (freeze) {
+                              statusText = isFrozenByMe ? 'Taken by You' : 'Taken by Other';
+                              statusBg = isFrozenByMe ? '#dcfce7' : '#f3f4f6';
+                              statusColor = isFrozenByMe ? '#166534' : '#6b7280';
+                              if (isFrozenByMe) canPay = false; // Don't need to pay if you took it (or handle as per rules, typically you still pay but let's assume they don't pay or just hide pay button for now)
+                            } else if (payment) {
                               if (payment.status === 'approved') {
                                 statusText = 'Paid'; statusBg = '#dcfce7'; statusColor = '#166534'; canPay = false;
                               } else if (payment.status === 'pending' && payment.remarks && payment.remarks.trim() !== '') {
@@ -395,34 +451,48 @@ const MyActiveChits = () => {
                                       </div>
                                     )}
 
-                                    {/* Pay Button */}
-                                    {canPay && (
-                                      <button
-                                        onClick={() => openPaymentModal(chit, monthNum)}
-                                        style={{
-                                          marginTop: '0.65rem',
-                                          width: '100%', padding: '0.55rem 0', borderRadius: '0.65rem',
-                                          border: 'none', fontWeight: 700, fontSize: '0.8rem',
-                                          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
-                                          background: (payment?.status === 'edit_requested' || (payment?.status === 'pending' && payment?.remarks))
-                                            ? 'linear-gradient(135deg, #f59e0b, #d97706)'
-                                            : 'linear-gradient(135deg, #16a34a, #22c55e)',
-                                          color: '#fff',
-                                          boxShadow: (payment?.status === 'edit_requested' || (payment?.status === 'pending' && payment?.remarks))
-                                            ? '0 4px 12px rgba(245, 158, 11, 0.3)'
-                                            : '0 4px 12px rgba(22, 163, 74, 0.25)',
-                                          letterSpacing: '0.01em'
-                                        }}
-                                      >
-                                        {(payment?.status === 'edit_requested' || (payment?.status === 'pending' && payment?.remarks)) ? (
-                                          <><Edit3 size={13} /><span>Edit & Resubmit</span></>
-                                        ) : payment?.status === 'rejected' ? (
-                                          <><Upload size={13} /><span>Resubmit Proof</span></>
-                                        ) : (
-                                          <><Upload size={13} /><span>Pay Contribution</span></>
-                                        )}
-                                      </button>
-                                    )}
+                                    {/* Pay / Take Button Row */}
+                                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.65rem' }}>
+                                      {canPay && !isFrozenByMe && (
+                                        <button
+                                          onClick={() => openPaymentModal(chit, monthNum)}
+                                          style={{
+                                            flex: 1, padding: '0.55rem 0', borderRadius: '0.65rem',
+                                            border: 'none', fontWeight: 700, fontSize: '0.8rem',
+                                            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
+                                            background: (payment?.status === 'edit_requested' || (payment?.status === 'pending' && payment?.remarks))
+                                              ? 'linear-gradient(135deg, #f59e0b, #d97706)'
+                                              : 'linear-gradient(135deg, #16a34a, #22c55e)',
+                                            color: '#fff',
+                                            boxShadow: (payment?.status === 'edit_requested' || (payment?.status === 'pending' && payment?.remarks))
+                                              ? '0 4px 12px rgba(245, 158, 11, 0.3)'
+                                              : '0 4px 12px rgba(22, 163, 74, 0.25)',
+                                            letterSpacing: '0.01em'
+                                          }}
+                                        >
+                                          {(payment?.status === 'edit_requested' || (payment?.status === 'pending' && payment?.remarks)) ? (
+                                            <><Edit3 size={13} /><span>Edit & Resubmit</span></>
+                                          ) : payment?.status === 'rejected' ? (
+                                            <><Upload size={13} /><span>Resubmit Proof</span></>
+                                          ) : (
+                                            <><Upload size={13} /><span>Pay Contribution</span></>
+                                          )}
+                                        </button>
+                                      )}
+                                      {!freeze && !userHasFrozenAny && chit.status === 'active' && (
+                                        <button
+                                          onClick={() => handleFreezeMonth(chit.id, monthNum)}
+                                          style={{
+                                            flex: 1, padding: '0.55rem 0', borderRadius: '0.65rem',
+                                            border: '1px solid #14b8a6', fontWeight: 700, fontSize: '0.8rem',
+                                            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
+                                            background: '#f0fdfa', color: '#0f766e'
+                                          }}
+                                        >
+                                          <Lock size={13} /><span>Take Payment</span>
+                                        </button>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -541,8 +611,119 @@ const MyActiveChits = () => {
         </div>
       )}
 
+      {/* Custom Confirm Modal */}
+      {confirmModal.isOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          <div style={{
+            backgroundColor: '#fff',
+            borderRadius: '1rem',
+            padding: '2rem',
+            width: '90%',
+            maxWidth: '400px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            animation: 'modalFadeIn 0.3s ease-out'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', color: '#1f2937' }}>
+              <div style={{ backgroundColor: '#fef3c7', padding: '0.5rem', borderRadius: '50%', color: '#d97706' }}>
+                <AlertCircle size={24} />
+              </div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Confirm Action</h3>
+            </div>
+            
+            <p style={{ color: '#4b5563', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+              Are you sure you want to take the payment for <strong>Month {confirmModal.monthNumber}</strong>? 
+              This action cannot be undone.
+            </p>
+            
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <button
+                onClick={() => setConfirmModal({ isOpen: false, chitId: null, monthNumber: null })}
+                disabled={isFreezing}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid #d1d5db',
+                  backgroundColor: '#fff',
+                  color: isFreezing ? '#9ca3af' : '#374151',
+                  fontWeight: 600,
+                  cursor: isFreezing ? 'not-allowed' : 'pointer',
+                  transition: 'background-color 0.2s',
+                  opacity: isFreezing ? 0.6 : 1
+                }}
+                onMouseOver={(e) => !isFreezing && (e.target.style.backgroundColor = '#f3f4f6')}
+                onMouseOut={(e) => !isFreezing && (e.target.style.backgroundColor = '#fff')}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmFreezeMonth}
+                disabled={isFreezing}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  backgroundColor: '#16a34a',
+                  color: '#fff',
+                  fontWeight: 600,
+                  cursor: isFreezing ? 'not-allowed' : 'pointer',
+                  transition: 'background-color 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  opacity: isFreezing ? 0.7 : 1
+                }}
+                onMouseOver={(e) => !isFreezing && (e.target.style.backgroundColor = '#15803d')}
+                onMouseOut={(e) => !isFreezing && (e.target.style.backgroundColor = '#16a34a')}
+              >
+                {isFreezing ? (
+                  <>
+                    <div style={{ width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)', borderTop: '2px solid #fff', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                    Processing...
+                  </>
+                ) : (
+                  'Yes, Take Payment'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Toast Notification */}
+      {toast.show && (
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          backgroundColor: toast.type === 'success' ? '#16a34a' : '#ef4444',
+          color: '#fff',
+          padding: '12px 24px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          zIndex: 9999,
+          animation: 'slideIn 0.3s ease-out'
+        }}>
+          {toast.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+          <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{toast.message}</span>
+        </div>
+      )}
+
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes modalFadeIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
       `}</style>
     </div>
   );
