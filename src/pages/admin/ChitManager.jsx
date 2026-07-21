@@ -252,6 +252,7 @@ const ChitManager = () => {
                   style={{ paddingLeft: '2.75rem', height: '44px', fontSize: '0.9rem', appearance: 'none' }}
                 >
                   <option value="10">10 Members</option>
+                  <option value="15">15 Members</option>
                   <option value="20">20 Members</option>
                   <option value="30">30 Members</option>
                   <option value="40">40 Members</option>
@@ -294,6 +295,7 @@ const ChitManager = () => {
                   style={{ paddingLeft: '2.75rem', height: '44px', fontSize: '0.9rem', appearance: 'none' }}
                 >
                   <option value="10">10 Months</option>
+                  <option value="15">15 Months</option>
                   <option value="20">20 Months</option>
                   <option value="30">30 Months</option>
                   <option value="40">40 Months</option>
