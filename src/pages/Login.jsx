@@ -147,8 +147,6 @@ const Login = () => {
       console.log(`User response to the install prompt: ${outcome}`);
       // We've used the prompt, and can't use it again, throw it away
       setDeferredPrompt(null);
-    } else {
-      alert("App is already installed or your browser doesn't support automatic installation.");
     }
   };
 
