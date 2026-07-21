@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -11,9 +11,9 @@ import {
   ShieldAlert,
   ArrowRight,
   ChevronRight,
-  ShieldCheck,
   LockKeyhole,
-  Check
+  Check,
+  Download
 } from 'lucide-react';
 import logoImg from '../assets/logo.jpeg';
 import heroImg from '../assets/hero-illustration.png';
@@ -88,6 +88,30 @@ const Register = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response to the install prompt: ${outcome}`);
+      setDeferredPrompt(null);
+    }
+  };
 
   const handleFileChange = (e, fileType) => {
     const file = e.target.files[0];
@@ -216,7 +240,7 @@ const Register = () => {
         borderRight: '1px solid rgba(30, 107, 62, 0.08)',
         position: 'relative',
         overflow: 'hidden'
-      }} className="login-hero-section">
+      }} className="register-hero-section">
         
         {/* Header Logo & Bell */}
         <div className="animate-fade-in-up delay-100" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4rem', zIndex: 10 }}>
@@ -269,6 +293,32 @@ const Register = () => {
                 <Check size={12} strokeWidth={3.5} />
               </div>
               <span>100% Encrypted & Safe</span>
+            </div>
+
+            <div className="animate-fade-in-up delay-500" style={{ marginTop: '1.5rem' }}>
+              <button
+                onClick={handleInstallClick}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  backgroundColor: '#166534',
+                  color: 'white',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.95rem',
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(22, 101, 52, 0.2)',
+                  transition: 'transform 0.2s'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                <Download size={18} />
+                Download App
+              </button>
             </div>
           </div>
 
@@ -341,6 +391,29 @@ const Register = () => {
                   <Check size={10} strokeWidth={3} />
                 </div>
                 <span>100% Secure</span>
+              </div>
+
+              <div className="animate-fade-in-up delay-400" style={{ marginBottom: '1rem' }}>
+                <button
+                  onClick={handleInstallClick}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    backgroundColor: '#166534',
+                    color: 'white',
+                    padding: '0.5rem 1rem',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    border: 'none',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(22, 101, 52, 0.2)'
+                  }}
+                >
+                  <Download size={14} />
+                  Download App
+                </button>
               </div>
             </div>
 
