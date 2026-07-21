@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -16,7 +16,8 @@ import {
   ShieldAlert,
   HelpCircle,
   X,
-  Check
+  Check,
+  Download
 } from 'lucide-react';
 import logoImg from '../assets/logo.jpeg';
 import heroImg from '../assets/hero-illustration.png';
@@ -119,6 +120,37 @@ const Login = () => {
   const [otpStep, setOtpStep] = useState(1); // 1 = enter email, 2 = enter otp
   const [otpVal, setOtpVal] = useState('');
   const [otpSentTo, setOtpSentTo] = useState('');
+
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault();
+      // Stash the event so it can be triggered later.
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      // Show the install prompt
+      deferredPrompt.prompt();
+      // Wait for the user to respond to the prompt
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response to the install prompt: ${outcome}`);
+      // We've used the prompt, and can't use it again, throw it away
+      setDeferredPrompt(null);
+    } else {
+      alert("App is already installed or your browser doesn't support automatic installation.");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -241,6 +273,32 @@ const Login = () => {
               </div>
               <span>Trusted by 1000+ Users</span>
             </div>
+            
+            <div className="animate-fade-in-up delay-500" style={{ marginTop: '1.5rem' }}>
+              <button
+                onClick={handleInstallClick}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  backgroundColor: '#166534',
+                  color: 'white',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.95rem',
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(22, 101, 52, 0.2)',
+                  transition: 'transform 0.2s'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                <Download size={18} />
+                Download App
+              </button>
+            </div>
           </div>
 
           {/* Hero Image */}
@@ -312,6 +370,29 @@ const Login = () => {
                   <Check size={10} strokeWidth={3} />
                 </div>
                 <span>Trusted by 1000+</span>
+              </div>
+              
+              <div className="animate-fade-in-up delay-400" style={{ marginBottom: '1rem' }}>
+                <button
+                  onClick={handleInstallClick}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    backgroundColor: '#166534',
+                    color: 'white',
+                    padding: '0.5rem 1rem',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    border: 'none',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(22, 101, 52, 0.2)'
+                  }}
+                >
+                  <Download size={14} />
+                  Download App
+                </button>
               </div>
             </div>
 
