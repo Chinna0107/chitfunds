@@ -17,7 +17,8 @@ import {
   ChevronUp,
   Info,
   Star,
-  ArrowLeft
+  ArrowLeft,
+  Pencil
 } from 'lucide-react';
 
 const FormationIllustration = () => (
@@ -76,6 +77,18 @@ const ChitManager = () => {
   const [formLoading, setFormLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [showForm, setShowForm] = useState(true);
+
+  // Edit Modal State
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingChit, setEditingChit] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editTotalMembers, setEditTotalMembers] = useState('20');
+  const [editMonthlyContribution, setEditMonthlyContribution] = useState('');
+  const [editDurationMonths, setEditDurationMonths] = useState('20');
+  const [editAuctionType, setEditAuctionType] = useState('Open Auction');
+  const [editLoading, setEditLoading] = useState(false);
+  const [editSuccess, setEditSuccess] = useState('');
+  const [editError, setEditError] = useState('');
 
   const fetchChits = async () => {
     try {
@@ -146,6 +159,68 @@ const ChitManager = () => {
       setFormError('Server error creating chit.');
     } finally {
       setFormLoading(false);
+    }
+  };
+
+  const openEditModal = (chit) => {
+    setEditingChit(chit);
+    setEditName(chit.name);
+    setEditTotalMembers(String(chit.totalMembers));
+    setEditMonthlyContribution(String(chit.monthlyContribution));
+    setEditDurationMonths(String(chit.durationMonths));
+    // Parse auction type from termsAndConditions
+    const tc = chit.termsAndConditions || '';
+    if (tc.includes('Written Bid')) {
+      setEditAuctionType('Written Bid');
+    } else {
+      setEditAuctionType('Open Auction');
+    }
+    setEditSuccess('');
+    setEditError('');
+    setEditModalOpen(true);
+  };
+
+  const handleEditChit = async (e) => {
+    e.preventDefault();
+    setEditError('');
+    setEditSuccess('');
+    setEditLoading(true);
+
+    const calculatedChitValue = (Number(editMonthlyContribution) || 0) * (Number(editDurationMonths) || 0);
+
+    try {
+      const response = await fetch(`${API_URL}/chits/${editingChit.id}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: editName,
+          totalMembers: Number(editTotalMembers),
+          chitValue: calculatedChitValue,
+          monthlyContribution: Number(editMonthlyContribution),
+          durationMonths: Number(editDurationMonths),
+          termsAndConditions: `Auction Type: ${editAuctionType}`
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setEditSuccess('Chit updated successfully!');
+        await fetchChits();
+        setTimeout(() => {
+          setEditModalOpen(false);
+          setEditingChit(null);
+        }, 1200);
+      } else {
+        setEditError(data.message || 'Failed to update chit.');
+      }
+    } catch (error) {
+      console.error('Error updating chit:', error);
+      setEditError('Server error updating chit.');
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -481,6 +556,29 @@ const ChitManager = () => {
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      {chit.status === 'upcoming' && (
+                        <button
+                          onClick={() => openEditModal(chit)}
+                          title="Edit Chit"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '34px',
+                            height: '34px',
+                            borderRadius: '50%',
+                            border: '1px solid rgba(30, 107, 62, 0.15)',
+                            backgroundColor: '#f0fdf4',
+                            color: '#166534',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => { e.target.style.backgroundColor = '#dcfce7'; e.target.style.transform = 'scale(1.1)'; }}
+                          onMouseLeave={(e) => { e.target.style.backgroundColor = '#f0fdf4'; e.target.style.transform = 'scale(1)'; }}
+                        >
+                          <Pencil size={15} />
+                        </button>
+                      )}
                       {chit.status === 'active' ? (
                         <span className="badge badge-active" style={{ backgroundColor: '#e8f5e9', color: '#166534' }}>Active (Month {chit.currentMonth}/{chit.durationMonths})</span>
                       ) : chit.status === 'completed' ? (
@@ -497,12 +595,288 @@ const ChitManager = () => {
         </div>
       </ScrollAnimationWrapper>
 
+      {/* Edit Chit Modal */}
+      {editModalOpen && editingChit && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          animation: 'fadeIn 0.2s ease'
+        }}
+          onClick={(e) => { if (e.target === e.currentTarget) { setEditModalOpen(false); setEditingChit(null); } }}
+        >
+          <div style={{
+            backgroundColor: '#fff',
+            borderRadius: 'var(--radius-lg, 16px)',
+            width: '100%',
+            maxWidth: '520px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            boxShadow: '0 25px 60px rgba(0,0,0,0.2)',
+            animation: 'slideUp 0.3s ease'
+          }}>
+            {/* Modal Header */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '1.25rem 1.5rem',
+              borderBottom: '1px solid #f3f4f6',
+              background: 'linear-gradient(135deg, #f0fdf4 0%, #e2efe8 100%)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#166534', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Pencil size={16} color="#fff" />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#166534', margin: 0 }}>Edit Chit</h3>
+                  <p style={{ fontSize: '0.72rem', color: '#4b5563', margin: 0 }}>Update chit details before it starts</p>
+                </div>
+              </div>
+              <button
+                onClick={() => { setEditModalOpen(false); setEditingChit(null); }}
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  border: '1px solid #e5e7eb',
+                  backgroundColor: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: '#6b7280',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#fee2e2'; e.currentTarget.style.color = '#dc2626'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#6b7280'; }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: '1.5rem' }}>
+              {editSuccess && (
+                <div style={{ padding: '0.75rem', borderRadius: 'var(--radius-md, 8px)', background: '#e8f5e9', border: '1px solid #22c55e', color: '#166534', fontSize: '0.85rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Check size={16} />
+                  {editSuccess}
+                </div>
+              )}
+
+              {editError && (
+                <div style={{ padding: '0.75rem', borderRadius: 'var(--radius-md, 8px)', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid #ef4444', color: '#b91c1c', fontSize: '0.85rem', marginBottom: '1rem' }}>
+                  {editError}
+                </div>
+              )}
+
+              <form onSubmit={handleEditChit}>
+                {/* Chit Name */}
+                <div className="input-group">
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '0.35rem' }}>Chit Name</span>
+                  <div style={{ position: 'relative' }}>
+                    <Users size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+                    <input
+                      type="text"
+                      required
+                      placeholder="Enter chit name"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className="input-field"
+                      style={{ paddingLeft: '2.75rem', height: '44px', fontSize: '0.9rem' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Number of Members */}
+                <div className="input-group">
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '0.35rem' }}>Number of Members</span>
+                  <div style={{ position: 'relative' }}>
+                    <Users size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+                    <select
+                      value={editTotalMembers}
+                      onChange={(e) => {
+                        setEditTotalMembers(e.target.value);
+                        setEditDurationMonths(e.target.value);
+                      }}
+                      className="input-field"
+                      style={{ paddingLeft: '2.75rem', height: '44px', fontSize: '0.9rem', appearance: 'none' }}
+                    >
+                      <option value="10">10 Members</option>
+                      <option value="15">15 Members</option>
+                      <option value="20">20 Members</option>
+                      <option value="30">30 Members</option>
+                      <option value="40">40 Members</option>
+                      <option value="50">50 Members</option>
+                    </select>
+                    <ChevronDown size={18} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
+                  </div>
+                </div>
+
+                {/* Monthly Value */}
+                <div className="input-group">
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '0.35rem' }}>Chit Value (Per Month)</span>
+                  <div style={{ position: 'relative' }}>
+                    <IndianRupee size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+                    <input
+                      type="number"
+                      required
+                      placeholder="e.g. 10000"
+                      value={editMonthlyContribution}
+                      onChange={(e) => setEditMonthlyContribution(e.target.value)}
+                      className="input-field"
+                      style={{ paddingLeft: '2.75rem', height: '44px', fontSize: '0.9rem' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Duration */}
+                <div className="input-group">
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '0.35rem' }}>Chit Duration (Months)</span>
+                  <div style={{ position: 'relative' }}>
+                    <Calendar size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+                    <select
+                      value={editDurationMonths}
+                      onChange={(e) => setEditDurationMonths(e.target.value)}
+                      className="input-field"
+                      style={{ paddingLeft: '2.75rem', height: '44px', fontSize: '0.9rem', appearance: 'none' }}
+                    >
+                      <option value="10">10 Months</option>
+                      <option value="15">15 Months</option>
+                      <option value="20">20 Months</option>
+                      <option value="30">30 Months</option>
+                      <option value="40">40 Months</option>
+                      <option value="50">50 Months</option>
+                    </select>
+                    <ChevronDown size={18} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
+                  </div>
+                </div>
+
+                {/* Auction Type */}
+                <div className="input-group">
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '0.35rem' }}>Auction Type</span>
+                  <div style={{ position: 'relative' }}>
+                    <Gavel size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+                    <select
+                      value={editAuctionType}
+                      onChange={(e) => setEditAuctionType(e.target.value)}
+                      className="input-field"
+                      style={{ paddingLeft: '2.75rem', height: '44px', fontSize: '0.9rem', appearance: 'none' }}
+                    >
+                      <option value="Open Auction">Open Auction</option>
+                      <option value="Written Bid">Written Bid</option>
+                    </select>
+                    <ChevronDown size={18} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
+                  </div>
+                </div>
+
+                {/* Edit Preview */}
+                <div style={{ marginTop: '0.5rem', marginBottom: '1.5rem' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-primary-green)', display: 'block', marginBottom: '0.6rem' }}>Updated Preview</span>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+                    <div style={{ border: '1px solid #e5e7eb', padding: '0.6rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <div style={{ padding: '0.35rem', borderRadius: '50%', backgroundColor: '#e8f5e9', color: '#166534' }}>
+                        <Users size={14} />
+                      </div>
+                      <div>
+                        <span style={{ fontSize: '0.6rem', color: '#9ca3af', display: 'block' }}>Members</span>
+                        <strong style={{ fontSize: '0.8rem' }}>{editTotalMembers || 0}/{editTotalMembers || 0}</strong>
+                      </div>
+                    </div>
+                    <div style={{ border: '1px solid #e5e7eb', padding: '0.6rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <div style={{ padding: '0.35rem', borderRadius: '50%', backgroundColor: '#e8f5e9', color: '#166534' }}>
+                        <IndianRupee size={13} />
+                      </div>
+                      <div>
+                        <span style={{ fontSize: '0.6rem', color: '#9ca3af', display: 'block' }}>Monthly</span>
+                        <strong style={{ fontSize: '0.8rem' }}>₹{(Number(editMonthlyContribution) || 0).toLocaleString()}</strong>
+                      </div>
+                    </div>
+                    <div style={{ border: '1px solid #e5e7eb', padding: '0.6rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <div style={{ padding: '0.35rem', borderRadius: '50%', backgroundColor: '#e8f5e9', color: '#166534' }}>
+                        <Calendar size={14} />
+                      </div>
+                      <div>
+                        <span style={{ fontSize: '0.6rem', color: '#9ca3af', display: 'block' }}>Duration</span>
+                        <strong style={{ fontSize: '0.8rem' }}>{editDurationMonths || 0} Months</strong>
+                      </div>
+                    </div>
+                    <div style={{ border: '1px solid #e5e7eb', padding: '0.6rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <div style={{ padding: '0.35rem', borderRadius: '50%', backgroundColor: '#fefbeb', color: '#ca8a04' }}>
+                        <Star size={14} />
+                      </div>
+                      <div>
+                        <span style={{ fontSize: '0.6rem', color: '#9ca3af', display: 'block' }}>Total Collection</span>
+                        <strong style={{ fontSize: '0.8rem', color: '#ca8a04' }}>₹{((Number(editMonthlyContribution) || 0) * (Number(editDurationMonths) || 0)).toLocaleString()}</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => { setEditModalOpen(false); setEditingChit(null); }}
+                    className="btn-secondary"
+                    style={{
+                      flex: 1,
+                      height: '44px',
+                      borderRadius: 'var(--radius-full, 50px)',
+                      fontWeight: 700,
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={editLoading}
+                    className="btn-primary"
+                    style={{
+                      flex: 2,
+                      height: '44px',
+                      borderRadius: 'var(--radius-full, 50px)',
+                      fontWeight: 700,
+                      fontSize: '0.9rem',
+                      boxShadow: '0 4px 12px rgba(30, 107, 62, 0.2)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.4rem'
+                    }}
+                  >
+                    {editLoading ? 'Saving...' : (<><Check size={16} /> Save Changes</>)}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style>{`
         @media (max-width: 900px) {
           .admin-chit-grid {
             grid-template-columns: 1fr !important;
             gap: 2rem !important;
           }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
